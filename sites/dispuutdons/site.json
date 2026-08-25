@@ -1,0 +1,8 @@
+{
+  "name": "dispuutdons",
+  "version": "1.0.0",
+  "title": "Dispuut Dons",
+  "domains": ["dispuutdons.nl", "www.dispuutdons.nl"],
+  "port": 9821,
+  "status": "live"
+}

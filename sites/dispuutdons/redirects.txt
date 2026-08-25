@@ -1,0 +1,7 @@
+# Legacy URLs from the PHP site, asserted by tools/smoke.sh.
+# Format: <old-path> <expected-location>
+#
+# The old site was a single index.php on Plesk. "/" and "/index.php" were the only two
+# URLs that resolved; everything else already returned 404 before the migration.
+
+/index.php /

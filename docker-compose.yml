@@ -17,3 +17,11 @@ services:
     ports:
       - "9820:80"
     restart: unless-stopped
+
+  dispuutdons:
+    build:
+      context: .
+      dockerfile: sites/dispuutdons/Dockerfile
+    ports:
+      - "9821:80"
+    restart: unless-stopped

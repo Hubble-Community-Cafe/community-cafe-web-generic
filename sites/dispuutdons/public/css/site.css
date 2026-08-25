@@ -1,0 +1,222 @@
+/*
+ * Dispuut Dons.
+ *
+ * The original pulled Materialize 1.0, jQuery, Slick, Iconify, two Google Fonts and a
+ * font from dafontfree.net. Only Materialize's container, card and scale-transition were
+ * doing anything; the rest was dead weight. All of it is replaced here, so the site loads
+ * nothing from anyone else and needs no JavaScript at all.
+ *
+ * Values measured off the live site before the rewrite, so the layout is unchanged:
+ *   #0f4d64  page background (dark teal)
+ *   #ecf0f1  header background and footer text
+ *   #f3f6d9  card background (cream)
+ *   #333     text
+ *   896px    container width at 1280px viewport (Materialize .container, 70%)
+ *   63px     h1, 24px card title, 15px body
+ */
+
+/*
+ * AXIS, the Hubble and Meteor display face, self-hosted. Same file as
+ * community-cafe-web/shared-web/fonts. The original site asked for this face via a
+ * dafontfree.net stylesheet that never actually loaded (it is served as text/html, so
+ * the browser rejects it), which is why the live heading renders in the sans-serif
+ * fallback today.
+ */
+@font-face {
+  font-family: 'AXIS';
+  src: url('../fonts/AXIS.woff2') format('woff2'),
+       url('../fonts/AXIS.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0 0 1.5rem;
+  font-family: sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333;
+  text-align: center;
+  background-color: #0f4d64;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.site-header {
+  margin-top: 2em;
+  padding: 0.1em;
+  overflow: hidden;
+  color: #333;
+  text-align: center;
+  background-color: #ecf0f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.site-logo {
+  display: block;
+  width: auto;
+  height: 256px;
+  margin: 0 auto;
+}
+
+.site-title {
+  display: inline-block;
+  max-width: 85%;
+  /* Reproduces the original's spacing: the logo was an inline image, leaving a ~6px
+     baseline gap above the heading, and the heading kept its default bottom margin.
+     Without these the header comes out 31px shorter than the live site. */
+  margin: 6px 0 26px;
+  font-family: 'AXIS', sans-serif;
+  font-size: 63px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.container {
+  width: 90%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* The original opened the card area with an empty <h1 class="cards-subject"></h1>, whose
+   margins were the only thing it contributed. The empty heading is gone; its 33px of
+   spacing is kept here so the cards sit where they always did. */
+main {
+  padding-top: 33px;
+}
+
+@media only screen and (min-width: 601px) {
+  .container {
+    width: 85%;
+  }
+}
+
+@media only screen and (min-width: 993px) {
+  .container {
+    width: 70%;
+  }
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  /* Materialize used 0.5rem/1rem against its own 15px root, so these are the px values
+     the live site actually renders, not 8px/16px against the browser default. */
+  margin: 7.5px 0 15px;
+  color: #333;
+  background-color: #f3f6d9;
+  border-radius: 2px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+              0 3px 1px -2px rgba(0, 0, 0, 0.12),
+              0 1px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.card-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px 2px 0 0;
+}
+
+.card-content {
+  padding: 24px;
+}
+
+.card-content p {
+  margin: 0 0 1em;
+}
+
+.card-content > :last-child {
+  margin-bottom: 0;
+}
+
+.card-title {
+  display: block;
+  margin-bottom: 0.5em;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 32px;
+}
+
+/* The members photo is portrait-ish and very tall on a narrow screen, so the original
+   capped it at 90% of the viewport height. Kept, with object-fit so the cap crops
+   rather than squashes. */
+#boortekening .card-image img {
+  max-height: 90vh;
+  object-fit: cover;
+}
+
+/*
+ * The entrance animation. The original did this with jQuery: both cards started at
+ * scale(0) via Materialize's .scale-out, and on DOM ready jQuery added .scale-in to the
+ * first card and to the second after a 300ms delay. That is the whole reason the page
+ * loaded jQuery and Materialize's JavaScript. As CSS it needs neither, and it no longer
+ * depends on a script running for the content to be visible.
+ */
+@keyframes card-scale-in {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/*
+ * fill-mode `backwards`, not `both`: the card's resting state is its natural, unscaled
+ * one, and the animation only supplies the scale(0) start during the delay. So if the
+ * animation never runs (reduced motion, a throttled background tab, an old browser) the
+ * content is simply visible, instead of stuck at scale(0) and invisible. The original
+ * had exactly that failure mode, which is why it needed a <noscript> override.
+ */
+.card {
+  animation: card-scale-in 0.3s cubic-bezier(0.53, 0.01, 0.36, 1.63) backwards;
+}
+
+.card + .card {
+  animation-delay: 0.3s;
+}
+
+/* The original had no reduced-motion path: content scaled in from nothing regardless. */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  color: #ecf0f1;
+}
+
+.site-footer p {
+  margin: 1em 0 0;
+}
+
+/* ── Small screens ───────────────────────────────────────────────────────── */
+
+@media only screen and (max-width: 32em) {
+  .site-title {
+    margin: 0 0 1em;
+    padding: 0;
+    font-size: 2rem;
+  }
+
+  .site-logo {
+    height: auto;
+    max-width: 60%;
+  }
+
+  .card-content {
+    padding: 18px;
+  }
+}
