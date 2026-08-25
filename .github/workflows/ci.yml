@@ -1,0 +1,210 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, develop]   # develop: Dependabot PRs target this branch (dependabot.yml)
+
+# Cancel superseded runs for the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ==================== WHICH SITES CHANGED ====================
+  # Everything downstream is a matrix over this job's output, so a push that touches one
+  # site neither rebuilds nor republishes the others. A change to shared/, tools/ or
+  # .github/ rebuilds all of them, because it changes every image.
+  changes:
+    name: Detect changed sites
+    runs-on: ubuntu-latest
+    outputs:
+      sites: ${{ steps.detect.outputs.sites }}
+      any: ${{ steps.detect.outputs.any }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # the diff needs history back to the base ref
+      - id: detect
+        run: >
+          node tools/changed-sites.mjs
+          "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
+
+  # ==================== STATIC CHECKS ====================
+  # Always over ALL sites, not just the changed ones: port uniqueness is a
+  # cross-site property, and a stale site should not stay broken unnoticed.
+  validate:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+      - name: Site contract, third-party refs, broken links
+        run: node tools/check-sites.mjs
+      - name: Validate HTML
+        shell: bash
+        run: |
+          shopt -s nullglob globstar
+          files=(sites/*/public/**/*.html)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No HTML in the repo yet, nothing to validate."
+            exit 0
+          fi
+          npx --yes html-validate "${files[@]}"
+
+  # ==================== RUNTIME SMOKE ====================
+  # Build each changed site's image and prove the real container serves it correctly.
+  smoke:
+    name: Smoke (${{ matrix.site }})
+    needs: [changes, validate]
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJSON(needs.changes.outputs.sites) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"   # smoke.sh reads the port out of site.json with node
+      - name: Build image
+        run: docker build -f sites/${{ matrix.site }}/Dockerfile -t ${{ matrix.site }}:ci .
+      - name: Start container
+        run: |
+          port=$(node -p "require('./sites/${{ matrix.site }}/site.json').port")
+          docker run -d --name smoke-${{ matrix.site }} -p "$port:80" ${{ matrix.site }}:ci
+          for _ in $(seq 1 30); do
+            curl -sf "http://127.0.0.1:$port/health" >/dev/null && exit 0
+            sleep 1
+          done
+          echo "Container never became healthy." >&2
+          exit 1
+      - name: Smoke test
+        run: tools/smoke.sh ${{ matrix.site }}
+      - name: Container logs
+        if: failure()
+        run: docker logs smoke-${{ matrix.site }} || true
+
+  # ==================== PUBLISH GATE (main only) ====================
+  # Nothing reaches GHCR until a maintainer approves it, so a merge alone cannot publish
+  # an image. Enforced by the `production` environment's required reviewers
+  # (repo Settings > Environments), not by anything in this file.
+  #
+  # Its own job so ONE approval releases every changed site: putting `environment:` on
+  # the matrix job below would queue a separate pending deployment per site.
+  approve-publish:
+    name: Await publish approval
+    needs: [changes, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - run: echo "Publishing ${{ github.sha }} approved for ${{ needs.changes.outputs.sites }}."
+
+  # ==================== BUILD & PUSH IMAGES (main only) ====================
+  # One image per changed site, tagged :latest, :v<site version> and :main-<sha>.
+  # The version comes from that site's own site.json, so sites release independently.
+  images:
+    name: Build & push (${{ matrix.site }})
+    needs: [changes, approve-publish]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJSON(needs.changes.outputs.sites) }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Resolve version and image name
+        id: meta
+        run: |
+          echo "version=$(node -p "require('./sites/${{ matrix.site }}/site.json').version")" >> "$GITHUB_OUTPUT"
+          # GHCR requires a lowercase namespace.
+          echo "image=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-${{ matrix.site }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./sites/${{ matrix.site }}/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:v${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.image }}:main-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # Image scanning is best-effort: it must not block a deploy whose image has
+      # already been pushed.
+      - name: Scan image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          image-ref: ${{ steps.meta.outputs.image }}@${{ steps.push.outputs.digest }}
+          format: sarif
+          output: trivy-${{ matrix.site }}.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: trivy-${{ matrix.site }}.sarif
+          category: trivy-${{ matrix.site }}
+
+  # ==================== GITHUB RELEASE (new site version only) ====================
+  # Tags are per site (<site>-v<version>), so a bunkerbar release does not imply
+  # anything about dispuutdons. A push that did not bump the version just refreshes
+  # :latest and creates no release.
+  release:
+    name: Release (${{ matrix.site }})
+    needs: [changes, images]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJSON(needs.changes.outputs.sites) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Resolve tag
+        id: tag
+        run: |
+          version=$(node -p "require('./sites/${{ matrix.site }}/site.json').version")
+          tag="${{ matrix.site }}-v$version"
+          echo "name=$tag" >> "$GITHUB_OUTPUT"
+          if git ls-remote --tags origin "$tag" | grep -q .; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create release
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.tag.outputs.name }}" \
+            --title "${{ steps.tag.outputs.name }}" \
+            --generate-notes

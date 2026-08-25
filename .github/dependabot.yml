@@ -1,0 +1,47 @@
+version: 2
+updates:
+  # ── Site base images (nginx:alpine) ──────────────────────────────────────────
+  # A glob, so a new site under sites/ is picked up without editing this file.
+  # There is no npm or Maven entry anywhere: the sites have no dependencies, and the
+  # tooling is dependency-free Node and shell on purpose.
+  - package-ecosystem: "docker"
+    directories:
+      - "/sites/*"
+    target-branch: "develop"
+    # Monthly, on the first of the month. These sites have exactly one dependency each
+    # (the nginx base image), so a weekly cadence would be noise.
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "PimVanLeeuwen"
+    labels:
+      - "dependencies"
+      - "docker"
+    # Majors are split from minor/patch so one blocked major cannot hold back routine
+    # (often security) updates.
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      major:
+        patterns: ["*"]
+        update-types: ["major"]
+
+  # ── GitHub Actions ───────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule: { interval: "monthly", time: "09:00", timezone: "Europe/Amsterdam" }
+    open-pull-requests-limit: 3
+    reviewers: ["PimVanLeeuwen"]
+    labels: ["dependencies", "ci"]
+    groups:
+      minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      major:
+        patterns: ["*"]
+        update-types: ["major"]

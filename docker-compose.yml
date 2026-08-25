@@ -1,0 +1,19 @@
+# Local development: every site in this repo, each on its own port.
+#
+#   docker compose up --build -d              all sites
+#   docker compose up --build -d bunkerbar    one site
+#
+# Every image builds from the repo ROOT as context, so it can COPY shared/nginx/.
+# The published port must match that site's `port` in site.json: tools/smoke.sh derives
+# its URL from site.json, so a mismatch here surfaces as a failed smoke test.
+#
+# Add a new service by copying the block below. tools/new-site.sh prints the reminder.
+
+services: {}
+  # bunkerbar:
+  #   build:
+  #     context: .
+  #     dockerfile: sites/bunkerbar/Dockerfile
+  #   ports:
+  #     - "9820:80"
+  #   restart: unless-stopped

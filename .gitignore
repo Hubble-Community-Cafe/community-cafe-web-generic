@@ -1,0 +1,25 @@
+# ── Site snapshots (the committed mirror lives in git; scratch mirrors do not) ──
+.snapshot/
+*.orig
+
+# ── Env & secrets (NEVER commit) ───────────────────────────────
+.env
+.env.*.local
+*.local.env
+
+# Docker Compose files that may carry secrets
+docker-compose.portainer.yml
+docker-compose.prod.yml
+docker-compose.*.local.yml
+
+# ── Editor / OS ────────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+*.log
+
+# ── Agent tooling (local only) ─────────────────────────────────
+.claude/
+.claude-flow/
+.mcp.json
+CLAUDE.md

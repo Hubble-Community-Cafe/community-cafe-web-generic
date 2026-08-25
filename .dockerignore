@@ -1,0 +1,21 @@
+# Every site image builds from the repo ROOT (so it can COPY shared/nginx/).
+# Keep the build context small and reproducible: never ship tooling, docs or secrets.
+**/.tmp
+**/.snapshot
+
+.git
+.github
+.idea
+.vscode
+**/.DS_Store
+**/*.log
+
+.env
+.env.*
+
+# Not needed inside any image
+docs
+tools
+**/*.md
+CLAUDE.md
+docker-compose*.yml

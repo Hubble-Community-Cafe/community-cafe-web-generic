@@ -1,0 +1,36 @@
+# Portainer deployment template for the static site library.
+#
+# Copy to docker-compose.portainer.yml (gitignored) and replace every __VERSION__ with a
+# release tag (e.g. 1.0.0) or "latest". Images are pushed to GHCR by the CI workflow.
+#
+# ONE stack holds every site, one service per site. Sites are independent: redeploying a
+# single service in Portainer updates that site alone, and each carries its own version.
+#
+# There are no secrets in this file and no environment configuration: these sites are
+# static, have no API, and behave identically everywhere. It is a template only so the
+# image tags can be pinned per environment.
+#
+# Reverse-proxy each published port to its hostname in Nginx Proxy Manager:
+#   9820 -> bunkerbar.nl,    www.bunkerbar.nl
+#   9821 -> dispuutdons.nl,  www.dispuutdons.nl
+#
+# Ports must match each site's `port` in site.json. Add an Uptime Kuma monitor per
+# domain after deploying; that is the only monitoring these sites get, deliberately
+# (no Sentry, no analytics, no client-side script of any kind).
+
+services: {}
+  # bunkerbar:
+  #   image: ghcr.io/hubble-community-cafe/community-cafe-web-generic-bunkerbar:__VERSION__
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #   ports:
+  #     - "9820:80"
+  #   networks:
+  #     - static-sites
+  #   environment:
+  #     - TZ=Europe/Amsterdam
+
+networks:
+  static-sites:
