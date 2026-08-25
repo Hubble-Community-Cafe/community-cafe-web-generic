@@ -1,0 +1,19 @@
+# Legacy URLs from the PHP site, asserted by tools/smoke.sh.
+# Format: <old-path> <expected-location>
+#
+# The old site was one index.php that switched its body on a query parameter.
+# index.php and index.php?body=begin rendered the same page, so both land on /.
+
+/index.php                   /
+/index.php?body=begin        /
+/index.php?body=score        /score
+/index.php?body=verenigingen /verenigingen
+/index.php?body=contact      /contact
+/index.php?body=sitemap      /sitemap
+/index.php?body=disclaimer   /disclaimer
+
+# An unknown body value is not a real page; send it to the homepage rather than a 404.
+/index.php?body=onzin        /
+
+# Trailing slashes normalise to the clean URL.
+/score/                      /score

@@ -1,0 +1,363 @@
+/*
+ * Bunkerbar, archived site.
+ *
+ * The look is deliberately unchanged from the original 2017 site: SCOrE orange on a
+ * yellow-to-orange gradient, a black rounded frame, Arial throughout. What changed is
+ * how it is built: the original used inline styles, spacer divs and four presentational
+ * images (a 1x8000px gradient JPEG, two black rounded bars and two tab caps). Those are
+ * now CSS, which is byte-for-byte the same colours and radii and about 190 KB lighter.
+ *
+ * Colours sampled from the original assets:
+ *   #f49408  SCOrE orange, the solid background and the accent
+ *   #fbd546  the yellow the gradient starts from at the top of the page
+ *   15px     corner radius, measured off kop_zwart.gif and menu/links.gif
+ */
+
+:root {
+  --orange: #f49408;
+  --yellow: #fbd546;
+  --radius: 15px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/*
+ * The gradient lives on <html> rather than <body> so it always paints the full canvas,
+ * the way the original body background image did. On <body> it would be clipped to the
+ * content height and cut the gradient short on the shorter pages.
+ */
+html {
+  background-color: var(--orange);
+  background-image: linear-gradient(to bottom, var(--yellow) 0, var(--orange) 200px);
+  background-repeat: no-repeat;
+}
+
+body {
+  margin: 0;
+  padding: 0 0 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.25;
+  color: #000;
+  /* The original set overflow-y:scroll to stop short pages jumping horizontally. */
+  overflow-y: scroll;
+}
+
+.page {
+  width: 1000px;
+  max-width: 100%;
+  margin: 20px auto 0;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.site-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 90px;
+  background: #000;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.site-title {
+  margin: 0;
+  padding: 0 0 8px 24px;
+  font-size: 48px;
+  font-weight: bold;
+  line-height: 1;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-title:hover {
+  color: var(--orange);
+}
+
+.site-nav {
+  display: flex;
+  align-items: flex-end;
+  padding-right: 10px;
+}
+
+.site-nav a {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.site-nav a:hover {
+  color: var(--orange);
+}
+
+/* The active tab: a white cap that meets the white content area below it. The
+   original drew this with two 15x50 GIFs either side of a white block. */
+.site-nav a[aria-current="page"] {
+  background: #fff;
+  color: var(--orange);
+}
+
+/* ── Content ─────────────────────────────────────────────────────────────── */
+
+.site-main {
+  padding: 16px 10px 24px;
+  background: #fff;
+}
+
+.site-main img {
+  max-width: 100%;
+  height: auto;
+}
+
+.site-main a {
+  color: #00c;
+}
+
+.site-main p {
+  margin: 0 0 1em;
+}
+
+/*
+ * Two heading looks, both from the original. The index page wrote its headings as
+ * <u><b>...</b></u> at body size; the SCOrE, sitemap and disclaimer pages used real
+ * heading elements at their browser-default sizes. Both are reproduced exactly, so the
+ * markup can be semantic without the pages changing appearance.
+ */
+.site-main h1 {
+  margin: 0.67em 0;
+  font-size: 2em;
+}
+
+.site-main h2 {
+  margin: 0.83em 0;
+  font-size: 1.5em;
+}
+
+.site-main h3 {
+  margin: 1em 0;
+  font-size: 1.17em;
+}
+
+/* Must outweigh the element selectors above, which is why it is scoped to .site-main
+   rather than left as a bare class. */
+.site-main .heading-plain {
+  margin: 1.5em 0 0;
+  font-size: 1em;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.site-main .heading-plain + p {
+  margin-top: 0;
+}
+
+/* The original opened each page's content with one or two <br> before the first
+   heading. That spacing is reproduced by leaving the first heading's own top margin in
+   place rather than resetting it, which lands within a few pixels of the original. */
+
+/* Right-floated photos on the SCOrE page. */
+.figure-right {
+  float: right;
+  max-width: 450px;
+  margin: 0 100px 16px 24px;
+}
+
+.figure-right img {
+  display: block;
+}
+
+/* ── Board tables (SCOrE page) ───────────────────────────────────────────── */
+
+.board-table {
+  border-collapse: collapse;
+  margin: 0 0 1.5em;
+}
+
+.board-table td {
+  padding: 0 24px 0 0;
+  vertical-align: top;
+}
+
+.board-table td:last-child {
+  padding-right: 0;
+}
+
+.board-table caption {
+  padding: 0 0 1em;
+  text-align: left;
+}
+
+/* One <tbody> per person, so someone who held several roles stays visually grouped.
+   The original drew these gaps with empty spacer rows. */
+.board-table tbody + tbody td {
+  padding-top: 1em;
+}
+
+/* ── Association logos (Verenigingen page) ───────────────────────────────── */
+
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px 20px;
+  margin: 2em 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logo-grid li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.logo-grid img {
+  max-width: 100%;
+  max-height: 200px;
+}
+
+/* ── Sitemap list ────────────────────────────────────────────────────────── */
+
+.sitemap-list {
+  margin: 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+
+.sitemap-list li {
+  margin: 0 0 0.25em;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  padding: 4px 10px 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  background: #000;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.site-footer a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--orange);
+}
+
+/* Available to screen readers, invisible on screen. Used for the page heading on the
+   two pages the original gave no visible heading at all. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Small screens ───────────────────────────────────────────────────────────
+ * The original was a fixed 1000px with no viewport meta, so a phone rendered it
+ * zoomed out to illegibility. The desktop layout above is untouched; this only
+ * takes over below the point where 1000px stops fitting.
+ */
+
+@media (max-width: 1020px) {
+  .figure-right {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    margin-top: 0;
+  }
+
+  .site-header {
+    display: block;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  .site-title {
+    display: block;
+    padding: 14px 16px 10px;
+    font-size: 34px;
+  }
+
+  .site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+  }
+
+  .site-nav a {
+    flex: 1 1 auto;
+    justify-content: center;
+    height: 44px;
+    padding: 0 10px;
+    border-radius: 0;
+  }
+
+  .site-main {
+    padding: 16px 14px 24px;
+  }
+
+  .figure-right {
+    float: none;
+    max-width: 100%;
+    margin: 1em 0;
+  }
+
+  .logo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .logo-grid li {
+    min-height: 120px;
+  }
+
+  .logo-grid img {
+    max-height: 120px;
+  }
+
+  /* The board tables are name / role / period; on a narrow screen the period column
+     is what runs out of room, so let the whole table scroll rather than squeeze it. */
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .site-footer {
+    border-radius: 0;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-title {
+    font-size: 28px;
+  }
+
+  .logo-grid {
+    grid-template-columns: 1fr;
+  }
+}

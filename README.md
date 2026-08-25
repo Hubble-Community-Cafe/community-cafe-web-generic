@@ -11,7 +11,7 @@ the conventions here come from.
 
 | Site | Domain | Port | Status |
 |------|--------|------|--------|
-| _none yet_ | | | |
+| [`bunkerbar`](sites/bunkerbar/README.md) | bunkerbar.nl | 9820 | archive |
 
 ## How a site is put together
 

@@ -1,0 +1,8 @@
+{
+  "name": "bunkerbar",
+  "version": "1.0.0",
+  "title": "Bunkerbar",
+  "domains": ["bunkerbar.nl", "www.bunkerbar.nl"],
+  "port": 9820,
+  "status": "archive"
+}

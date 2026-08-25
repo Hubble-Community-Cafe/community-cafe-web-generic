@@ -18,19 +18,19 @@
 # domain after deploying; that is the only monitoring these sites get, deliberately
 # (no Sentry, no analytics, no client-side script of any kind).
 
-services: {}
-  # bunkerbar:
-  #   image: ghcr.io/hubble-community-cafe/community-cafe-web-generic-bunkerbar:__VERSION__
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #   ports:
-  #     - "9820:80"
-  #   networks:
-  #     - static-sites
-  #   environment:
-  #     - TZ=Europe/Amsterdam
+services:
+  bunkerbar:
+    image: ghcr.io/hubble-community-cafe/community-cafe-web-generic-bunkerbar:__VERSION__
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    ports:
+      - "9820:80"
+    networks:
+      - static-sites
+    environment:
+      - TZ=Europe/Amsterdam
 
 networks:
   static-sites:

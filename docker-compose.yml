@@ -9,11 +9,11 @@
 #
 # Add a new service by copying the block below. tools/new-site.sh prints the reminder.
 
-services: {}
-  # bunkerbar:
-  #   build:
-  #     context: .
-  #     dockerfile: sites/bunkerbar/Dockerfile
-  #   ports:
-  #     - "9820:80"
-  #   restart: unless-stopped
+services:
+  bunkerbar:
+    build:
+      context: .
+      dockerfile: sites/bunkerbar/Dockerfile
+    ports:
+      - "9820:80"
+    restart: unless-stopped
