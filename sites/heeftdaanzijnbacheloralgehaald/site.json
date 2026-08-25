@@ -1,0 +1,8 @@
+{
+  "name": "heeftdaanzijnbacheloralgehaald",
+  "version": "1.0.0",
+  "title": "Heeft Daan zijn bachelor al gehaald?",
+  "domains": ["heeftdaanzijnbacheloralgehaald.nl", "www.heeftdaanzijnbacheloralgehaald.nl"],
+  "port": 9822,
+  "status": "live"
+}

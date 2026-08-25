@@ -25,3 +25,11 @@ services:
     ports:
       - "9821:80"
     restart: unless-stopped
+
+  heeftdaanzijnbacheloralgehaald:
+    build:
+      context: .
+      dockerfile: sites/heeftdaanzijnbacheloralgehaald/Dockerfile
+    ports:
+      - "9822:80"
+    restart: unless-stopped

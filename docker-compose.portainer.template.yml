@@ -45,5 +45,18 @@ services:
     environment:
       - TZ=Europe/Amsterdam
 
+  heeftdaanzijnbacheloralgehaald:
+    image: ghcr.io/hubble-community-cafe/community-cafe-web-generic-heeftdaanzijnbacheloralgehaald:__VERSION__
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    ports:
+      - "9822:80"
+    networks:
+      - static-sites
+    environment:
+      - TZ=Europe/Amsterdam
+
 networks:
   static-sites:

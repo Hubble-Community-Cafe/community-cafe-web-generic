@@ -1,0 +1,6 @@
+# Legacy URLs, asserted by tools/smoke.sh.
+# Format: <old-path> <expected-location>
+#
+# Deliberately empty. The old site served exactly two URLs, "/" and "/index.html", both
+# with a 200, and both still do. Nothing was ever moved, so there is nothing to redirect.
+# See nginx.conf for why /index.html is not canonicalised to "/".

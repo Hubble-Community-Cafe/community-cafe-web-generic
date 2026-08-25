@@ -1,0 +1,22 @@
+/*
+ * Heeft Daan zijn bachelor al gehaald?
+ *
+ * Lifted verbatim from the <style> block in the original index.html. The only reason it
+ * lives in a file now is the Content-Security-Policy, which has no 'unsafe-inline'.
+ * Values unchanged.
+ */
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.center {
+    font-size: 5em;
+    color: #333;
+}

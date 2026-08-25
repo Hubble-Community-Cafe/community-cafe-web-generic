@@ -13,6 +13,7 @@ the conventions here come from.
 |------|--------|------|--------|
 | [`bunkerbar`](sites/bunkerbar/README.md) | bunkerbar.nl | 9820 | archive |
 | [`dispuutdons`](sites/dispuutdons/README.md) | dispuutdons.nl | 9821 | live |
+| [`heeftdaanzijnbacheloralgehaald`](sites/heeftdaanzijnbacheloralgehaald/README.md) | heeftdaanzijnbacheloralgehaald.nl | 9822 | live |
 
 ## How a site is put together
 
