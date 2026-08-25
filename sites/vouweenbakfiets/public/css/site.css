@@ -1,0 +1,214 @@
+/*
+ * Vouweenbakfiets.
+ *
+ * The original was not a site at all: vouweenbakfiets.nl served a 202 byte <FRAMESET>
+ * that displayed vouweenbak.nl/bakfiets/ in a frame. That page in turn was a WordPress
+ * page dressed up with inline CSS (hiding the theme's nav) and inline jQuery (rewriting
+ * the document title, appending " fiets" to the site name and swapping the logo).
+ *
+ * This reproduces the rendered result as a standalone page. Values measured off the live
+ * page before the rewrite:
+ *   #dfe6e9  page background
+ *   #2c3e50  hero overlay colour, at 70% over the photo
+ *   #0a0a0a  body text
+ *   #abb8c3  the asterisk and the footnote (WordPress "cyan bluish gray")
+ *   #1779ba  link colour
+ *   768px    content column, 400px minimum hero height, 36px hero title, 16px/1.6 body
+ */
+
+/*
+ * Roboto, self-hosted (Apache License 2.0, so redistributing it is fine). The original
+ * pulled this from Google Fonts, along with Sriracha, which no element on the page ever
+ * used. Only the latin subset is shipped, as variable fonts covering the whole weight
+ * range in one file each; the page uses 400, 700 and 400 italic.
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/roboto-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/roboto-latin-italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #0a0a0a;
+  background-color: #dfe6e9;
+}
+
+a {
+  color: #1779ba;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────────
+ * The theme's nav sat here, but this page hid it with `.top-bar-right{display:none}`,
+ * so the live page shows only the logo and the wordmark. The nav is therefore not
+ * reproduced: it was never visible here, and every item pointed at vouweenbak.nl,
+ * which is exactly what this site is being separated from.
+ */
+
+.top-bar {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+}
+
+.top-bar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.top-bar a:hover {
+  text-decoration: underline;
+}
+
+.top-bar img {
+  display: block;
+  width: 26px;
+  height: auto;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────────
+ * A WordPress "cover" block: the photo, a 70% #2c3e50 overlay, and centred text.
+ */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 1em;
+  overflow: hidden;
+  color: #fff;
+  background-color: #2c3e50;
+}
+
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+}
+
+.hero::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-color: #2c3e50;
+  opacity: 0.7;
+}
+
+.hero-title {
+  position: relative;
+  z-index: 1;
+  /* width:100% because .hero is a flex container, so without it the heading shrinks to
+     its text instead of taking the 768px column. */
+  width: 100%;
+  max-width: 768px;
+  /* 0.44em padding and 1.25 line-height are the WordPress cover-text defaults, which is
+     what gives the live title its 76px box at 36px. The bottom margin stands in for the
+     empty paragraph the live page has below the title, which nudges it 20px up. */
+  margin: 0 auto 40px;
+  padding: 0.44em;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* The asterisk, and the footnote it points at, are WordPress's "cyan bluish gray". */
+.aside {
+  color: #abb8c3;
+}
+
+/* ── Content ─────────────────────────────────────────────────────────────── */
+
+/* 798px minus the 15px gutters is the live site's 768px text column; the gutters are
+   what keeps it off the edge on a phone. */
+.content {
+  max-width: 798px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* The 8px top padding is the theme's, and is load-bearing for the vertical rhythm:
+   without it every paragraph sits 8px higher than on the live site. */
+.content p {
+  margin: 0 0 16px;
+  padding-top: 8px;
+}
+
+/* The live page separates the footnote with six empty paragraphs, which come to 160px.
+   As a margin that collapses with the preceding paragraph's 16px, so 160 is the figure
+   that reproduces the gap rather than 144. */
+/* Scoped to .content p so it outweighs the paragraph rule above, which would otherwise
+   win on specificity and flatten the gap back to 16px. */
+.content p.footnote {
+  margin: 160px 0 16px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  padding: 40px 15px 43px;
+  font-size: 14.4px;
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+/* ── Small screens ───────────────────────────────────────────────────────────
+ * The original inherited the theme's responsive behaviour. The hero title and the
+ * generous footnote gap are the two things that need to give on a phone.
+ */
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: 300px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .footnote {
+    margin-top: 56px;
+  }
+
+  .top-bar a {
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "vouweenbakfiets",
+  "version": "1.0.0",
+  "title": "Vouweenbakfiets",
+  "domains": ["vouweenbakfiets.nl", "www.vouweenbakfiets.nl"],
+  "port": 9823,
+  "status": "live"
+}

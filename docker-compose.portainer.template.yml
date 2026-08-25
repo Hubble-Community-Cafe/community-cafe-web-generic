@@ -58,5 +58,18 @@ services:
     environment:
       - TZ=Europe/Amsterdam
 
+  vouweenbakfiets:
+    image: ghcr.io/hubble-community-cafe/community-cafe-web-generic-vouweenbakfiets:__VERSION__
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    ports:
+      - "9823:80"
+    networks:
+      - static-sites
+    environment:
+      - TZ=Europe/Amsterdam
+
 networks:
   static-sites:

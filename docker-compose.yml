@@ -33,3 +33,11 @@ services:
     ports:
       - "9822:80"
     restart: unless-stopped
+
+  vouweenbakfiets:
+    build:
+      context: .
+      dockerfile: sites/vouweenbakfiets/Dockerfile
+    ports:
+      - "9823:80"
+    restart: unless-stopped
