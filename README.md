@@ -79,8 +79,3 @@ and fill in the version tags.
 
 Monitoring is one Uptime Kuma monitor per domain. There is deliberately no Sentry and no
 analytics: there is no client-side application to instrument.
-
-## Contributing
-
-Conventional Commits scoped to the site (`feat(bunkerbar): ...`), branch off `main`, every PR
-requires owner approval (see [`.github/pull_request_template.md`](.github/pull_request_template.md)).
