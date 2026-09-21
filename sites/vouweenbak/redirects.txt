@@ -1,0 +1,39 @@
+# Legacy URLs from the WordPress site, asserted by tools/smoke.sh.
+# Format: <old-path> <expected-location>
+#
+# Every page URL on the old site ended in a slash, and there were 609 of them, so the
+# first two lines below stand in for the whole set: one page, one bakvouwtijd. The rest
+# are the URLs that go somewhere other than their slashless self.
+
+/records/ /records
+/tijd/leon/ /tijd/leon
+
+# The bakfiets page is a site of its own now.
+/bakfiets/ https://vouweenbakfiets.nl/
+/bakfiets https://vouweenbakfiets.nl/
+
+# Six empty stubs about the verenigingen. The duck counts live on /eendjes.
+/vereniging/doppio/ /eendjes
+/vereniging/salve-mundi/ /eendjes
+
+# WordPress' sample page. It rendered "Post Not Found" on the live site.
+/voorbeeld-pagina/ /
+
+# The CMS routes.
+/feed/ /
+/comments/feed/ /
+/wp-json/ /
+/wp-json/wp/v2/bakvouwtijd /
+/author/kamphuis/ /
+/wp-admin/ /
+/wp-login.php /
+/xmlrpc.php /
+/wp-includes/js/jquery/jquery.min.js /
+/wp-content/themes/JointsWP-CSS-master/assets/styles/style.css /
+
+# Uploads kept their names; only the year/month tree is gone.
+/wp-content/uploads/2020/06/vouwbak1.png /img/vouwbak1.png
+/wp-content/uploads/2021/09/IMG_0320-1024x683.jpg /img/IMG_0320-1024x683.jpg
+
+/wp-sitemap.xml /sitemap.xml
+/wp-sitemap-posts-bakvouwtijd-1.xml /sitemap.xml

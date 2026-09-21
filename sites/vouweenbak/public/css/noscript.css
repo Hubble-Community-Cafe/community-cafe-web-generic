@@ -1,0 +1,10 @@
+/*
+ * Loaded from inside a <noscript> in the head of every page with glasses on it.
+ *
+ * style.css hides each time behind .hiddendiv until the drain animation finishes, so
+ * on the live site a visitor without JavaScript saw four empty glasses and no times at
+ * all. This puts the times back. Nothing changes for anyone else.
+ */
+.hiddendiv {
+  display: inline;
+}

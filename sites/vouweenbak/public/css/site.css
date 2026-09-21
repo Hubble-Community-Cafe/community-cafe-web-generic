@@ -1,0 +1,263 @@
+/*
+ * Vouw een bak: everything this static copy adds on top of the WordPress theme.
+ *
+ * The rest of the CSS in this folder is vendored as the live site served it
+ * (wp-blocks.css, foundation.min.css, style.css). This file holds the three kinds of
+ * thing that could not come along unchanged:
+ *
+ *   1. The fonts, self-hosted instead of fetched from Google Fonts.
+ *   2. Classes replacing the inline style="" attributes WordPress emitted, which the
+ *      CSP in shared/nginx/headers.conf blocks. Each one carries the exact declarations
+ *      from the attribute it replaces, so nothing about the page moved a pixel.
+ *   3. The notice bar, and the record history chart that took over from Google Charts.
+ */
+
+/*
+ * Roboto (body) and Sriracha (the leaderboard names), self-hosted. Both are Apache
+ * License 2.0 / SIL OFL, so redistributing them is fine. Only the latin subset ships:
+ * the only characters on the site outside it are two emoji in nicknames, which the
+ * system emoji font draws anyway. Roboto is the variable font, one file for the whole
+ * weight range; Sriracha only ever had the one weight.
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/roboto-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/roboto-latin-italic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sriracha';
+  src: url('../fonts/sriracha-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── The notice ──────────────────────────────────────────────────────────────
+ * Inside .header rather than before it: the header is position:fixed, so a bar in
+ * normal flow above it would scroll away underneath. As the header's first child it
+ * is always visible, and the top bar keeps sitting directly under it.
+ *
+ * Its height is fixed rather than driven by the text, and .off-canvas-content gets the
+ * same value as padding. Those two numbers are a pair: the header floats over the page
+ * (the hero starts underneath it), so the only way to keep the wordmark off the hero
+ * heading is to start the page exactly as far down as the notice is tall. Two lines fit
+ * the small value down to a 320px screen, one line fits the wide one.
+ */
+.site-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.9rem;
+  margin: 0;
+  padding: 0 1em;
+  background-color: #fbb03b;
+  color: #1e272e;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+/*
+ * style.css fixes the header without saying where, so it lands at its static position,
+ * which the padding below would push down along with the page. Pinning it to the top is
+ * what the original did by accident.
+ */
+.header {
+  top: 0;
+}
+
+.off-canvas-content {
+  padding-top: 2.9rem;
+}
+
+@media print, screen and (min-width: 40em) {
+  .site-notice {
+    height: 2rem;
+    font-size: 0.85rem;
+  }
+
+  .off-canvas-content {
+    padding-top: 2rem;
+  }
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────────
+ * Transparent over the hero, solid once you have scrolled past it. The theme's
+ * scripts.js wrote both the colour and the transition into the element's style on
+ * every scroll event; js/site.js only toggles the class now.
+ */
+.top-bar {
+  transition: background-color 0.5s;
+}
+
+.top-bar.is-scrolled {
+  background-color: #333;
+}
+
+/* ── Replacements for WordPress' inline style attributes ─────────────────────
+ * The cover blocks, each named after the page it is on. WordPress wrote the image,
+ * the colour and the measured min-height into a style="" attribute per block.
+ */
+.cover-home {
+  background-image: url('../img/Beer-in-a-duck.jpg');
+  min-height: 374px;
+  aspect-ratio: unset;
+}
+
+.cover-records {
+  min-height: 324px;
+  aspect-ratio: unset;
+}
+
+.cover-stats {
+  min-height: 229px;
+  aspect-ratio: unset;
+}
+
+.cover-regels {
+  background-image: url('../img/Stackmatresized.jpg');
+  min-height: 247px;
+  aspect-ratio: unset;
+}
+
+.cover-regels-gradient {
+  background: linear-gradient(135deg, rgb(255, 255, 255) 0%, rgb(201, 195, 183) 100%);
+}
+
+.cover-eendjes {
+  background-image: url('../img/Meerfotosmetbiertjess-1024x621.jpg');
+}
+
+.cover-privacy {
+  background-image: url('../img/image-1024x437.png');
+  background-position: 50% 100%;
+  min-height: 361px;
+  aspect-ratio: unset;
+}
+
+.cover-privacy-dark {
+  background-color: #222f3e;
+}
+
+.cover-changelog {
+  min-height: 568px;
+  aspect-ratio: unset;
+}
+
+/* The dark cover behind every single bakvouwtijd. */
+.cover-tijd {
+  background-color: #222;
+  color: #eee;
+}
+
+/* The " > " after every time in the leaderboard. */
+.arrow {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* The "- Onderdanen -" divider in the leaderboard, which the page centred with a
+ * <center> element inside its <h2>. */
+.tijdlijst-divider {
+  text-align: center;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────
+ * style.css lays the widget area out as three columns, and the live site filled it
+ * with two empty text widgets so the disclaimer landed in the middle one. One column
+ * and a centred line puts it in the same place without the empty elements. The
+ * disclaimer was a <center>, which has no margin, so neither does the <p>.
+ */
+.footersidebar > div {
+  grid-template-columns: 1fr;
+}
+
+.footer .disclaimer {
+  margin: 0;
+  text-align: center;
+}
+
+/* Two links that carried their own underline. */
+.link-light {
+  color: #eee;
+  text-decoration: underline;
+}
+
+.link-inline {
+  display: inline;
+  text-decoration: underline;
+}
+
+/* The two wide glasses on /stats. */
+.glas-full {
+  width: 100%;
+}
+
+/* ── /stats ──────────────────────────────────────────────────────────────────
+ * The stats page carried this in a <style> block of its own, halfway down the
+ * content. Both ids exist only on that page.
+ */
+@media print, screen and (min-width: 40em) {
+  #halveleo {
+    grid-row-start: 2;
+    grid-row-end: 5;
+  }
+
+  #oktoberfest {
+    grid-column-start: 2;
+  }
+}
+
+/* ── Record history chart ────────────────────────────────────────────────────
+ * Was a Google Charts line chart drawn from gstatic.com, which is a third-party
+ * request this repo does not allow. The data points were already in the page, so they
+ * are drawn straight into an inline <svg> now: same shape, same amber, no request and
+ * no JavaScript. Presentation attributes, not style="", so the CSP is happy.
+ */
+.bakvouwhistorie {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: 'Roboto', sans-serif;
+}
+
+.bakvouwhistorie .axis {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.bakvouwhistorie .grid {
+  stroke: #eee;
+  stroke-width: 1;
+}
+
+.bakvouwhistorie .label {
+  fill: #666;
+  font-size: 11px;
+}
+
+.bakvouwhistorie .axis-title {
+  fill: #444;
+  font-size: 12px;
+}
+
+.bakvouwhistorie .line {
+  fill: none;
+  stroke: #fbb03b;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.bakvouwhistorie .point {
+  fill: #fbb03b;
+}

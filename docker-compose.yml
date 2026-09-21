@@ -41,3 +41,11 @@ services:
     ports:
       - "9823:80"
     restart: unless-stopped
+
+  vouweenbak:
+    build:
+      context: .
+      dockerfile: sites/vouweenbak/Dockerfile
+    ports:
+      - "9824:80"
+    restart: unless-stopped

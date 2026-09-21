@@ -1,0 +1,8 @@
+{
+  "name": "vouweenbak",
+  "version": "1.0.0",
+  "title": "Vouw een bak",
+  "domains": ["vouweenbak.nl", "www.vouweenbak.nl"],
+  "port": 9824,
+  "status": "archive"
+}
