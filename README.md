@@ -15,6 +15,7 @@ the conventions here come from.
 | [`dispuutdons`](sites/dispuutdons/README.md) | dispuutdons.nl | 9821 | live |
 | [`heeftdaanzijnbacheloralgehaald`](sites/heeftdaanzijnbacheloralgehaald/README.md) | heeftdaanzijnbacheloralgehaald.nl | 9822 | live |
 | [`vouweenbakfiets`](sites/vouweenbakfiets/README.md) | vouweenbakfiets.nl | 9823 | live |
+| [`vouweenbak`](sites/vouweenbak/README.md) | vouweenbak.nl | 9824 | archive |
 
 ## How a site is put together
 
