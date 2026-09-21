@@ -51,14 +51,18 @@
  * Its height is fixed rather than driven by the text, and .off-canvas-content gets the
  * same value as padding. Those two numbers are a pair: the header floats over the page
  * (the hero starts underneath it), so the only way to keep the wordmark off the hero
- * heading is to start the page exactly as far down as the notice is tall. Two lines fit
- * the small value down to a 320px screen, one line fits the wide one.
+ * heading is to start the page exactly as far down as the notice is tall.
+ *
+ * Each step reserves the tallest the text can get anywhere in that range, measured:
+ * three lines down to a 320px screen, two lines from 40em, one from 64em (it stops
+ * wrapping at about 900px, so 64em has room to spare). Where the text is shorter than
+ * the reserve, the bar simply has the text centred in it.
  */
 .site-notice {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.9rem;
+  height: 3.9rem;
   margin: 0;
   padding: 0 1em;
   background-color: #fbb03b;
@@ -78,13 +82,23 @@
 }
 
 .off-canvas-content {
-  padding-top: 2.9rem;
+  padding-top: 3.9rem;
 }
 
 @media print, screen and (min-width: 40em) {
   .site-notice {
-    height: 2rem;
+    height: 2.9rem;
     font-size: 0.85rem;
+  }
+
+  .off-canvas-content {
+    padding-top: 2.9rem;
+  }
+}
+
+@media print, screen and (min-width: 64em) {
+  .site-notice {
+    height: 2rem;
   }
 
   .off-canvas-content {

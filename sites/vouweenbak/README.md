@@ -29,14 +29,20 @@ curl -sS https://vouweenbak.nl/tijd/leon/       # one record, fully server-rende
 
 Every page carries a bar at the top of the header:
 
-> A new version of this site is being built and hence the content of the site may be incorrect.This leaderboard is no longer updated.
+> A new version of this site is being built and hence the content of the site may be incorrect.
+> This leaderboard is no longer updated.
 
 It is the header's first child on purpose. The header is `position: fixed`, so a bar in normal
-flow above it would scroll away underneath. Its height is fixed rather than driven by the text
-(`2rem` on wide screens, where it is one line, `2.9rem` below 40em, where it is two) and
-`.off-canvas-content` carries the same value as `padding-top`. Those two numbers are a pair: the
-page starts exactly as far down as the notice is tall, which is what keeps the wordmark off the
-hero heading the way it was before the bar existed.
+flow above it would scroll away underneath. Its height is fixed rather than driven by the text,
+and `.off-canvas-content` carries the same value as `padding-top`. Those two numbers are a pair:
+the page starts exactly as far down as the notice is tall, which is what keeps the wordmark off
+the hero heading the way it was before the bar existed.
+
+Each step reserves the tallest the text can get anywhere in that range, measured rather than
+guessed: `3.9rem` for three lines down to a 320px screen, `2.9rem` for two from 40em, `2rem` for
+one from 64em. The text stops wrapping at around 900px, so 64em has room to spare. Where the
+text is shorter than the reserve, the bar simply has it centred in it. **Changing the wording
+means re-checking those three numbers**, at 320px, at 640px and at 1024px.
 
 ## Page map
 
@@ -96,10 +102,10 @@ moved into files, with no change to the rendering:
   `css/wp-theme.css`, split exactly where the cascade needs them: the single bakvouwtijden and
   the 404 page never loaded the block CSS, and they must not start now, because
   `.wp-block-cover` becomes a centring flexbox there and would push the glasses down the page.
-- **939 `style="font-family: Arial"` attributes** on the `>` after every time, 602
-  `style="background-color: #222"` on the record pages, and eleven cover blocks with their
-  background and measured height inline. All of them are classes in `css/site.css` now, each
-  carrying the exact declarations it replaced.
+- **939 `style="font-family: Arial"` attributes**, one on the `>` after every time in the two
+  leaderboards, plus a `style="background-color: #222"` on each of the 601 record pages and
+  eleven page covers carrying their background and measured height inline. All of them are
+  classes in `css/site.css` now, each carrying the exact declarations it replaced.
 - **The glass drain animation**, which WordPress wrote out per page with the time compiled into
   a jQuery call. The time is a `data-drain` attribute on the glass and `js/site.js` reads it.
   Same easing, same duration, now with a `prefers-reduced-motion` path.
@@ -124,6 +130,10 @@ never had (Foundation accordions, YouTube and Vimeo embeds).
 - **Two scores still had comments open** (`amy-k`, `jolijn-m`) and showed a "Login om te reageren"
   link and a reply form. Nothing on this site takes input, so those are gone. The comments
   themselves, on 25 pages, are untouched.
+- **The footer disclaimer was centred by accident.** `style.css` lays the widget area out as
+  three columns, and the live site filled it with two empty text widgets so "Geen 18, geen
+  alcohol" landed in the middle one. It is one column and a centred line now, which puts it in
+  the same place without the empty elements.
 - **Italics are real now.** The original asked Google Fonts for Roboto's normal weights only, so
   every `<em>` on the site was a faux-oblique the browser slanted itself. The self-hosted set
   includes the italic file, so italic text is drawn in Roboto Italic and runs very slightly
