@@ -1,6 +1,6 @@
 {
   "name": "bunkerbar",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "title": "Bunkerbar",
   "domains": ["bunkerbar.nl", "www.bunkerbar.nl"],
   "port": 9820,

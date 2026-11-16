@@ -158,10 +158,6 @@ body {
   text-decoration: underline;
 }
 
-.site-main .heading-plain + p {
-  margin-top: 0;
-}
-
 /* The original opened each page's content with one or two <br> before the first
    heading. That spacing is reproduced by leaving the first heading's own top margin in
    place rather than resetting it, which lands within a few pixels of the original. */
@@ -304,7 +300,6 @@ body {
   }
 
   .site-nav {
-    display: flex;
     flex-wrap: wrap;
     padding: 0;
   }
