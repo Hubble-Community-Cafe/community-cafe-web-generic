@@ -122,6 +122,19 @@ else
   echo "  note  no redirects.txt, skipping legacy URL checks"
 fi
 
+# ── No open redirect ──────────────────────────────────────────────────────────
+# The trailing-slash normaliser echoes part of the path back in Location. Browsers read
+# "/\host" and "//host" as a different origin, and drop tabs and newlines first, so none
+# of these may come back as a redirect that leaves the site.
+for probe in '//evil.example/' '/%5Cevil.example/' '/%2F%2Fevil.example/' '/%09/evil.example/' '/%5C%5Cevil.example/'; do
+  location="$(curl -sS -o /dev/null -w '%header{location}' --path-as-is --max-time 10 "$BASE$probe" || true)"
+  if printf '%s' "$location" | LC_ALL=C grep -qE '^(//|/\\|\\|[a-zA-Z][a-zA-Z0-9+.-]*:)|[[:cntrl:]]'; then
+    fail "$probe -> Location \"$location\" leaves the site (open redirect)"
+  else
+    pass "$probe does not redirect off-site"
+  fi
+done
+
 echo
 if [ "$failures" -eq 0 ]; then
   echo "$SITE: all smoke checks passed"
