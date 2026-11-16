@@ -135,6 +135,22 @@ for probe in '//evil.example/' '/%5Cevil.example/' '/%2F%2Fevil.example/' '/%09/
   fi
 done
 
+# ── No redirect loop on a directory ───────────────────────────────────────────
+# A directory without an index.html must answer directly, not bounce between "/css"
+# and "/css/" until the browser gives up.
+dir="$(cd "$SITE_DIR/public" 2>/dev/null && find . -mindepth 1 -type d ! -name '.*' \
+  ! -exec test -e '{}/index.html' ';' -print | head -1 | sed 's|^\.||')"
+if [ -n "$dir" ]; then
+  code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$BASE$dir" || echo 000)"
+  if [ "$code" = "404" ]; then
+    pass "GET $dir (directory, no index) -> 404"
+  else
+    fail "GET $dir (directory, no index) -> $code (expected 404, a 301 here loops)"
+  fi
+else
+  echo "  note  no directory without an index.html, skipping the redirect loop check"
+fi
+
 echo
 if [ "$failures" -eq 0 ]; then
   echo "$SITE: all smoke checks passed"

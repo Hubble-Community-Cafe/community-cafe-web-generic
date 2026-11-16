@@ -116,7 +116,8 @@ function collectCssRefs(css) {
 
 /**
  * Resolve a reference the way nginx would, given shared/nginx/static-site.conf's
- * `try_files $uri $uri.html $uri/`.
+ * `try_files $uri $uri.html $uri/index.html`. A directory without an index.html is a 404
+ * there, so it does not resolve here either.
  */
 function resolves(ref, file, publicDir) {
   const clean = ref.split('#')[0].split('?')[0]
@@ -130,7 +131,7 @@ function resolves(ref, file, publicDir) {
   for (const candidate of [base, `${base}.html`, join(base, 'index.html')]) {
     if (existsSync(candidate) && statSync(candidate).isFile()) return true
   }
-  return existsSync(base) && statSync(base).isDirectory()
+  return false
 }
 
 function checkReferences(site, file, publicDir, subresources, links) {
