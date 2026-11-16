@@ -91,6 +91,16 @@ if [ -n "$asset" ]; then
   else
     fail "static asset location is missing the security headers (did it include headers.conf?)"
   fi
+
+  # Exactly one Cache-Control, and it carries the max-age. `expires` next to an add_header
+  # Cache-Control would send two conflicting ones.
+  cache="$(printf '%s' "$asset_headers" | grep -i '^cache-control:' | tr -d '\r' || true)"
+  cache_count="$(printf '%s' "$cache" | grep -c . || true)"
+  if [ "$cache_count" = "1" ] && printf '%s' "$cache" | grep -q 'max-age=3600'; then
+    pass "one Cache-Control on static assets ($(printf '%s' "$cache" | cut -d' ' -f2-))"
+  else
+    fail "static asset sends $cache_count Cache-Control header(s), expected one with max-age=3600"
+  fi
 else
   echo "  note  no static assets found, skipping asset header check"
 fi
