@@ -13,7 +13,8 @@
  *   2. No third-party subresources. This is the privacy rule, checked at the source.
  *   3. Nothing that the strict CSP would block at runtime (inline style/script/handlers).
  *   4. Every internal link and asset reference resolves to a file that exists.
- *   5. Every page has a <title>, a viewport meta, a lang, and exactly one <main> and <h1>.
+ *   5. Every page has a <title>, a viewport meta, a lang, exactly one <main> and <h1>,
+ *      and header cells in every table.
  *   6. Every site has a service in both compose files, serving that site on the port in
  *      its site.json.
  */
@@ -201,6 +202,12 @@ function checkDocument(site, file, html) {
     const count = (markup.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length
     if (count !== 1) fail(site, file, `has ${count} <${tag}> elements, every page needs exactly one`)
   }
+
+  // A table without header cells is read out as a stream of values, and browsers may
+  // even treat it as layout. Headers can be visually hidden if the design has none.
+  const tables = markup.match(/<table[\s>][\s\S]*?<\/table>/gi) || []
+  const headless = tables.filter((table) => !/<th[\s>]/i.test(table)).length
+  if (headless) fail(site, file, `${headless} <table>(s) without <th> header cells`)
 }
 
 function checkRedirects(site, dir) {

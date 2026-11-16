@@ -61,6 +61,8 @@ positions. What changed is how the page is built.
   `'unsafe-inline'`.
 - **Layout tables became CSS.** The association logos are a grid, the board lists stay real tables
   (they are tabular data) with one `<tbody>` per person in place of the original's spacer rows.
+  They also gained Naam / Functie / Periode column headers, visually hidden because the
+  original showed none, so a screen reader announces what each cell is.
 - **Made responsive.** The original was a fixed 1000px with no viewport meta, so a phone showed it
   zoomed out to illegibility. The desktop layout is untouched; below 720px the nav becomes
   full-width tabs and the logo grid drops to two columns, then one.
