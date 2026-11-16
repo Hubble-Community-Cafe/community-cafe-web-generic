@@ -39,7 +39,8 @@ Almost nothing. The layout, colours, font and text are untouched.
 
 - **The `<title>` really is just "JA".** That is the joke, so it is kept verbatim rather than
   expanded into something descriptive.
-- **No favicon.** The original had none and one was not invented.
+- **No favicon.** The original had none and one was not invented: the site has no artwork to
+  derive one from. `/favicon.ico` answers an empty 204 (shared config), not the 404 page.
 - **`www` currently works over HTTPS** on the old host, unlike bunkerbar.nl. Make sure the Nginx
   Proxy Manager host covers both `heeftdaanzijnbacheloralgehaald.nl` and
   `www.heeftdaanzijnbacheloralgehaald.nl` before cutting over, or `www` will regress.

@@ -6,7 +6,7 @@ each site's `nginx.conf`. Changing anything here rebuilds **all** sites (see `to
 | File | Included where | What it holds |
 |------|----------------|---------------|
 | `headers.conf` | at `server` level, and inside every `location` with its own `add_header` | security headers and the CSP |
-| `static-site.conf` | once, inside the `server` block | clean URLs, caching, gzip, `/health`, 404, `server_tokens off` |
+| `static-site.conf` | once, inside the `server` block | clean URLs, caching, gzip, `/health`, `/favicon.ico` (the file, or 204 without one), 404, `server_tokens off` |
 
 ## Why the headers are included more than once
 
@@ -20,7 +20,8 @@ and `include`d twice over:
 
 - at `server` level, by `static-site.conf`. That covers every response from a location that
   adds no header of its own: the legacy 301s, `/health` and the 403 on a dotfile.
-- inside each location that sets its own `Cache-Control` (`/`, static assets, the 404 page).
+- inside each location that sets its own `Cache-Control` (`/`, static assets, `/favicon.ico`, the
+  404 page).
 
 A redirect-only `location` in a site's `nginx.conf` needs nothing extra. A new location that
 adds **any** header must include `headers.conf` too. `tools/smoke.sh` asserts the headers on a

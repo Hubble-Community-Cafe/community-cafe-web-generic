@@ -8,7 +8,7 @@
 # on a different listener than the docker-published port.
 #
 # Asserts what only a real response can prove:
-#   - / serves, /health answers
+#   - / serves, /health answers, /favicon.ico is the site's icon or an empty 204
 #   - the security headers survived (a location block that forgot to include headers.conf
 #     silently drops them, which is the whole reason this check exists)
 #   - the CSP is the strict one, with no 'unsafe-inline'
@@ -54,6 +54,18 @@ else
   fail "GET /health -> '$health' (expected OK)"
 fi
 
+# The shared config answers /favicon.ico with the site's file, or an empty 204 when the site
+# has none. A 404 here means that location is missing and every visit renders the 404 page.
+favicon_headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE/favicon.ico" || true)"
+code="$(printf '%s' "$favicon_headers" | head -1 | awk '{print $2}')"
+if [ -f "$SITE_DIR/public/favicon.ico" ]; then want=200; else want=204; fi
+if [ "$code" = "$want" ]; then pass "GET /favicon.ico -> $want"; else fail "GET /favicon.ico -> $code (expected $want)"; fi
+if printf '%s' "$favicon_headers" | grep -qi '^content-security-policy:'; then
+  pass "headers present on /favicon.ico"
+else
+  fail "/favicon.ico is missing the security headers (did its location include headers.conf?)"
+fi
+
 # ── Security headers on the HTML document ─────────────────────────────────────
 headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE/" || true)"
 for name in \
@@ -78,10 +90,11 @@ else
 fi
 
 # The same headers must survive on a static asset, which a DIFFERENT location block
-# serves. This is what catches a headers.conf include that was only half applied.
+# serves. This is what catches a headers.conf include that was only half applied. Not the
+# root favicon.ico: an exact location of its own serves that one, checked further up.
 asset="$(cd "$SITE_DIR/public" 2>/dev/null && find . -type f \
   \( -name '*.css' -o -name '*.js' -o -name '*.png' -o -name '*.jpg' -o -name '*.svg' -o -name '*.webp' -o -name '*.ico' \) \
-  | head -1 | sed 's|^\.||')"
+  ! -path ./favicon.ico | head -1 | sed 's|^\.||')"
 if [ -n "$asset" ]; then
   asset_headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE$asset" || true)"
   if ! printf '%s' "$asset_headers" | grep -qiE '^HTTP/[0-9.]+ 200'; then

@@ -107,7 +107,8 @@ two cannot drift apart unnoticed.
 
 Add `public/favicon.ico` (and a PNG or SVG if the original had one), `public/robots.txt`, and a
 `public/sitemap.xml` listing the clean URLs. `public/404.html` is served by the shared config if
-present; add one that matches the site's design.
+present; add one that matches the site's design. A site with no icon at all needs nothing: the
+shared config answers `/favicon.ico` with an empty 204 instead of the 404 page.
 
 ## 7. Verify
 

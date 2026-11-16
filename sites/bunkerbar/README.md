@@ -78,8 +78,12 @@ positions. What changed is how the page is built.
   `index.php?body=begin` highlighted the tab, but plain `index.php` rendered the same content
   with no tab highlighted. Both URLs now map to `/`, so one behaviour had to win; the highlighted
   one is what the tab was for.
-- **No favicon.** `https://bunkerbar.nl/favicon.ico` returns 404, so the original site never had
-  one. Not recreated by hand: that would be inventing brand identity for an archived site.
+- **The favicon is new, cut from the SCOrE logo.** `https://bunkerbar.nl/favicon.ico` returns
+  404 and no page linked an icon, so the original never had one. Rather than invent one, the two
+  beer mugs were cropped out of `images/logos/score_300.jpg` with the surrounding lettering
+  masked out, in the logo's own `#f49408`. The 16 and 32px sizes in `favicon.ico` have
+  thickened strokes, because the logo's thin lines vanish at tab size. `images/icon-192.png` is
+  the linked icon, `images/apple-touch-icon.png` the same on white for iOS.
 - **`images/achtergrond_pullen2.jpg` does not exist** (404). It is referenced only inside an HTML
   comment, as a commented-out alternative background, so nothing links to it.
 - **The association links are still `http://`**, exactly as the original wrote them. Not silently
