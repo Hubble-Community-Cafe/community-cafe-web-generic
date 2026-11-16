@@ -133,6 +133,10 @@ site has never had (Foundation accordions, YouTube and Vimeo embeds).
   URLs are percent-encoded, and nginx decodes the path before it looks for a file, so the file
   has to carry the emoji itself for `/tijd/frederik-%f0%9f%a4%b4` to keep working. It does;
   `tools/smoke.sh` and the container both confirm it.
+- **The logo is one file.** WordPress gave the 16px logo in the top bar a `srcset` of five
+  sizes with `sizes="(max-width: 1024px) 100vw, 1024px"`, so a narrow screen fetched the 58 KB
+  768px variant to draw 16 pixels. The 1024px original is only 12 KB, so it is the plain `src`
+  now and the four variants are gone.
 - **The 32×32 favicon is missing from the original.** `cropped-vouwbak1-32x32.png` is referenced
   in every page's head on the live site and **404s there**. The 180, 192 and 270 crops exist and
   are here. The reference is gone rather than recreated; if the file turns up on the old host,
