@@ -110,9 +110,12 @@ moved into files, with no change to the rendering:
   a jQuery call. The time is a `data-drain` attribute on the glass and `js/site.js` reads it.
   Same easing, same duration, now with a `prefers-reduced-motion` path.
 
-jQuery and Foundation stay, self-hosted: the off-canvas menu on small screens is theirs. The
-theme's `scripts.js` did not survive, because two thirds of it operated on markup this site has
-never had (Foundation accordions, YouTube and Vimeo embeds).
+jQuery and Foundation's JavaScript are gone too (67 KB gzipped on every page). The only thing
+they did that showed was the off-canvas menu on small screens, and `js/site.js` now drives it by
+setting the same state classes, so Foundation's CSS styles and slides it exactly as before. The
+menus have no submenus, so the dropdown and accordion plugins never did anything visible. The
+theme's `scripts.js` did not survive either, because two thirds of it operated on markup this
+site has never had (Foundation accordions, YouTube and Vimeo embeds).
 
 ## Quirks
 

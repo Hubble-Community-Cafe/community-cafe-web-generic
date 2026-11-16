@@ -1,38 +1,102 @@
 /*
  * Vouw een bak: the site's own script.
  *
- * It replaces two things from the WordPress original:
+ * It replaces three things from the WordPress original:
  *
- *   1. The theme's assets/scripts/scripts.js. That file also carried dead weight (an
+ *   1. jQuery and Foundation's JavaScript, 67 KB gzipped on every page, which this site
+ *      used for one thing: the off-canvas menu on small screens. The menus have no
+ *      submenus, so Foundation's dropdown and accordion plugins did nothing visible.
+ *   2. The theme's assets/scripts/scripts.js. That file also carried dead weight (an
  *      empty-<p> cleanup for Foundation accordions, and a responsive-embed wrapper for
- *      YouTube and Vimeo iframes) for markup this site has never had, so only the
- *      Foundation bootstrap and the top bar scroll behaviour survive.
- *   2. The per-page inline <script> that drained the glasses. WordPress wrote one out
+ *      YouTube and Vimeo iframes) for markup this site has never had, so only the top
+ *      bar scroll behaviour survives.
+ *   3. The per-page inline <script> that drained the glasses. WordPress wrote one out
  *      for every single bakvouwtijd, with the time compiled into the jQuery call. The
  *      time now sits in a data-drain attribute on the glass, and this reads it, so the
  *      CSP in shared/nginx/headers.conf can stay strict.
  *
- * Nothing here writes to the page's content. If this file fails to load, every glass
- * simply stays full and the times stay hidden (css/noscript.css only applies with
- * JavaScript off). If jQuery or Foundation fails to load, only the small-screen menu
- * is lost: the glasses still drain and reveal their times.
+ * Nothing here writes to the page's content. If this file fails to load, the menu
+ * button does nothing, every glass stays full and the times stay hidden
+ * (css/noscript.css only applies with JavaScript off).
  */
 (function () {
   'use strict'
 
-  // Foundation drives the off-canvas menu on small screens and the dropdown nav above
-  // it. Both are markup-driven (data-off-canvas, data-responsive-menu), so this is the
-  // whole initialisation.
-  //
-  // Guarded, because it runs first: if jquery.min.js or foundation.min.js failed to
-  // load, an unguarded call throws and takes the glasses below down with it, and with
-  // JavaScript on, css/noscript.css does not step in. Only the small-screen menu should
-  // be lost then, not every time on the page.
-  if (window.jQuery && window.jQuery.fn && window.jQuery.fn.foundation) {
-    try {
-      window.jQuery(document).foundation()
-    } catch (err) {
-      if (window.console) window.console.error('Foundation failed to start', err)
+  /*
+   * The off-canvas menu. Foundation's CSS (css/foundation.min.css) still does all the
+   * styling and the slide; this sets the same state classes and attributes Foundation's
+   * plugin did, recorded from the live page, so the menu looks and moves exactly as it
+   * did. Escape closing it is new.
+   */
+  var panel = document.getElementById('off-canvas')
+  var content = document.querySelector('[data-off-canvas-content]')
+  var toggles = document.querySelectorAll('[data-toggle="off-canvas"]')
+
+  if (panel && content && toggles.length) {
+    var overlay = document.createElement('div')
+    overlay.className = 'js-off-canvas-overlay is-overlay-fixed'
+    content.parentNode.insertBefore(overlay, content)
+
+    panel.classList.add('is-transition-push', 'is-closed')
+    panel.setAttribute('aria-hidden', 'true')
+    Array.prototype.forEach.call(toggles, function (toggle) {
+      toggle.setAttribute('aria-controls', panel.id)
+      toggle.setAttribute('aria-expanded', 'false')
+    })
+
+    var isOpen = false
+    var hideTimer = null
+
+    var setOpen = function (open) {
+      if (open === isOpen) return
+      isOpen = open
+      window.clearTimeout(hideTimer)
+
+      panel.classList.toggle('is-open', open)
+      panel.setAttribute('aria-hidden', String(!open))
+      overlay.classList.toggle('is-visible', open)
+      overlay.classList.toggle('is-closable', open)
+      content.classList.toggle('is-open-right', open)
+      content.classList.add('has-transition-push', 'has-position-right')
+      Array.prototype.forEach.call(toggles, function (toggle) {
+        toggle.setAttribute('aria-expanded', String(open))
+      })
+
+      if (open) {
+        panel.classList.remove('is-closed')
+      } else {
+        // is-closed hides the panel (visibility: hidden), which also takes its links out
+        // of the tab order. Added once the slide out has finished, as Foundation did.
+        var seconds = parseFloat(window.getComputedStyle(panel).transitionDuration) || 0
+        hideTimer = window.setTimeout(function () {
+          panel.classList.add('is-closed')
+        }, seconds * 1000)
+      }
+    }
+
+    Array.prototype.forEach.call(toggles, function (toggle) {
+      toggle.addEventListener('click', function () {
+        setOpen(!isOpen)
+      })
+    })
+    overlay.addEventListener('click', function () {
+      setOpen(false)
+    })
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && isOpen) {
+        setOpen(false)
+        toggles[0].focus()
+      }
+    })
+
+    // The button only exists below Foundation's medium breakpoint (40em). Widening the
+    // window past it with the menu open would otherwise leave the page pushed aside.
+    if (window.matchMedia) {
+      var medium = window.matchMedia('(min-width: 40em)')
+      var onBreakpoint = function () {
+        if (medium.matches) setOpen(false)
+      }
+      if (medium.addEventListener) medium.addEventListener('change', onBreakpoint)
     }
   }
 
