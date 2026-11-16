@@ -106,13 +106,16 @@ if [ -f "$REDIRECTS" ]; then
     from="${line%% *}"
     to="${line##* }"
 
-    result="$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 10 "$BASE$from" || echo "000 ")"
+    # The raw Location header, compared exactly. nginx emits relative locations
+    # (absolute_redirect off), so "/score" must come back as "/score", and an off-site
+    # target as the full URL. A suffix match would also accept "https://elsewhere/score".
+    result="$(curl -sS -o /dev/null -w '%{http_code} %header{location}' --max-time 10 "$BASE$from" || echo "000 ")"
     got_code="${result%% *}"
     got_location="${result#* }"
 
     if [ "$got_code" != "301" ]; then
       fail "$from -> $got_code (expected 301)"
-    elif [ "${got_location%$to}" != "$got_location" ] || [ "$got_location" = "$to" ]; then
+    elif [ "$got_location" = "$to" ]; then
       pass "$from -> 301 $to"
     else
       fail "$from -> 301 $got_location (expected $to)"
