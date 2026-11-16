@@ -12,8 +12,10 @@
  *      time now sits in a data-drain attribute on the glass, and this reads it, so the
  *      CSP in shared/nginx/headers.conf can stay strict.
  *
- * Nothing here writes to the page's content. If it fails to load, every glass simply
- * stays full and css/noscript.css keeps the times readable.
+ * Nothing here writes to the page's content. If this file fails to load, every glass
+ * simply stays full and the times stay hidden (css/noscript.css only applies with
+ * JavaScript off). If jQuery or Foundation fails to load, only the small-screen menu
+ * is lost: the glasses still drain and reveal their times.
  */
 (function () {
   'use strict'
@@ -21,7 +23,18 @@
   // Foundation drives the off-canvas menu on small screens and the dropdown nav above
   // it. Both are markup-driven (data-off-canvas, data-responsive-menu), so this is the
   // whole initialisation.
-  jQuery(document).foundation()
+  //
+  // Guarded, because it runs first: if jquery.min.js or foundation.min.js failed to
+  // load, an unguarded call throws and takes the glasses below down with it, and with
+  // JavaScript on, css/noscript.css does not step in. Only the small-screen menu should
+  // be lost then, not every time on the page.
+  if (window.jQuery && window.jQuery.fn && window.jQuery.fn.foundation) {
+    try {
+      window.jQuery(document).foundation()
+    } catch (err) {
+      if (window.console) window.console.error('Foundation failed to start', err)
+    }
+  }
 
   /*
    * The top bar is transparent over the hero and solid once you scroll past it. The
