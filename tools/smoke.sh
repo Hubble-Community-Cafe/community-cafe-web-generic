@@ -12,6 +12,7 @@
 #   - the security headers survived (a location block that forgot to include headers.conf
 #     silently drops them, which is the whole reason this check exists)
 #   - the CSP is the strict one, with no 'unsafe-inline'
+#   - CSS and JS revalidate on every use (no-cache, 304); other assets cache for an hour
 #   - every legacy URL in redirects.txt 301s to where it should
 
 set -uo pipefail
@@ -91,9 +92,10 @@ fi
 
 # The same headers must survive on a static asset, which a DIFFERENT location block
 # serves. This is what catches a headers.conf include that was only half applied. Not the
-# root favicon.ico: an exact location of its own serves that one, checked further up.
+# root favicon.ico (an exact location of its own, checked further up), and not CSS or JS,
+# which have their own location too (checked below).
 asset="$(cd "$SITE_DIR/public" 2>/dev/null && find . -type f \
-  \( -name '*.css' -o -name '*.js' -o -name '*.png' -o -name '*.jpg' -o -name '*.svg' -o -name '*.webp' -o -name '*.ico' \) \
+  \( -name '*.png' -o -name '*.jpg' -o -name '*.svg' -o -name '*.webp' -o -name '*.ico' -o -name '*.woff2' \) \
   ! -path ./favicon.ico | head -1 | sed 's|^\.||')"
 if [ -n "$asset" ]; then
   asset_headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE$asset" || true)"
@@ -116,6 +118,28 @@ if [ -n "$asset" ]; then
   fi
 else
   echo "  note  no static assets found, skipping asset header check"
+fi
+
+# CSS and JS are revalidated on every use, so a deploy never pairs fresh HTML with a stale
+# stylesheet or script: Cache-Control no-cache, the security headers, and a 304 with no body
+# when the browser already has the current file.
+code_asset="$(cd "$SITE_DIR/public" 2>/dev/null && find . -type f \( -name '*.css' -o -name '*.js' \) | head -1 | sed 's|^\.||')"
+if [ -n "$code_asset" ]; then
+  code_headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE$code_asset" || true)"
+  cache="$(printf '%s' "$code_headers" | grep -i '^cache-control:' | tr -d '\r' || true)"
+  if [ "$(printf '%s' "$cache" | grep -c .)" = "1" ] && printf '%s' "$cache" | grep -qi 'no-cache'; then
+    pass "CSS/JS revalidate on every use ($code_asset: $(printf '%s' "$cache" | cut -d' ' -f2-))"
+  else
+    fail "$code_asset sends '$cache', expected one Cache-Control: no-cache"
+  fi
+  if printf '%s' "$code_headers" | grep -qi '^content-security-policy:'; then
+    pass "headers present on CSS/JS too"
+  else
+    fail "CSS/JS location is missing the security headers (did it include headers.conf?)"
+  fi
+  etag="$(printf '%s' "$code_headers" | grep -i '^etag:' | cut -d' ' -f2- | tr -d '\r')"
+  code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 -H "If-None-Match: $etag" "$BASE$code_asset" || echo 000)"
+  if [ "$code" = "304" ]; then pass "revalidating $code_asset -> 304"; else fail "revalidating $code_asset -> $code (expected 304)"; fi
 fi
 
 # And on the responses no page location serves: a trailing-slash 301 (every site has the
