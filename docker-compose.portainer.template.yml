@@ -10,6 +10,10 @@
 # static, have no API, and behave identically everywhere. It is a template only so the
 # image tags can be pinned per environment.
 #
+# Every service runs with a read-only root filesystem. nginx needs only two writable
+# paths, its cache and its pid file, and gets them as tmpfs mounts.
+# uid 101 is the nginx user in nginx:alpine; the tmpfs mounts must belong to it.
+#
 # Reverse-proxy each published port to its hostname in Nginx Proxy Manager:
 #   9820 -> bunkerbar.nl,    www.bunkerbar.nl
 #   9821 -> dispuutdons.nl,  www.dispuutdons.nl
@@ -25,6 +29,10 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
     ports:
       - "9820:80"
     networks:
@@ -38,6 +46,10 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
     ports:
       - "9821:80"
     networks:
@@ -51,6 +63,10 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
     ports:
       - "9822:80"
     networks:
@@ -64,6 +80,10 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
     ports:
       - "9823:80"
     networks:
@@ -77,6 +97,10 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
     ports:
       - "9824:80"
     networks:

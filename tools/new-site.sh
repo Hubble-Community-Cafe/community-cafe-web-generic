@@ -67,7 +67,9 @@ COPY shared/nginx/ /etc/nginx/snippets/
 COPY sites/$NAME/nginx.conf /etc/nginx/conf.d/default.conf
 COPY sites/$NAME/public/ /usr/share/nginx/html/
 
-RUN chown -R nginx:nginx /usr/share/nginx/html /etc/nginx/conf.d /var/cache/nginx && \\
+# The nginx user may write only its cache and pid file. The content and the config stay
+# root-owned (and world-readable), so a compromised worker cannot rewrite the site.
+RUN chown -R nginx:nginx /var/cache/nginx && \\
     touch /var/run/nginx.pid && \\
     chown nginx:nginx /var/run/nginx.pid
 

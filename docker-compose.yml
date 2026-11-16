@@ -7,6 +7,10 @@
 # The published port must match that site's `port` in site.json: tools/smoke.sh derives
 # its URL from site.json, so a mismatch here surfaces as a failed smoke test.
 #
+# read_only plus the two tmpfs mounts match production: nginx can write its cache and pid
+# file and nothing else, so the served files cannot change while the container runs.
+# uid 101 is the nginx user in nginx:alpine; the tmpfs mounts must belong to it.
+#
 # Add a new service by copying the block below. tools/new-site.sh prints the reminder.
 
 services:
@@ -17,6 +21,10 @@ services:
     ports:
       - "9820:80"
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
 
   dispuutdons:
     build:
@@ -25,6 +33,10 @@ services:
     ports:
       - "9821:80"
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
 
   heeftdaanzijnbacheloralgehaald:
     build:
@@ -33,6 +45,10 @@ services:
     ports:
       - "9822:80"
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
 
   vouweenbakfiets:
     build:
@@ -41,6 +57,10 @@ services:
     ports:
       - "9823:80"
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
 
   vouweenbak:
     build:
@@ -49,3 +69,7 @@ services:
     ports:
       - "9824:80"
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:uid=101,gid=101
+      - /run:uid=101,gid=101
