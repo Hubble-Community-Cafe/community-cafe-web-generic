@@ -47,7 +47,10 @@ the copy, colours, imagery and character exactly as they are.
 - Semantic HTML: real `<header>`, `<nav>`, `<main>`, `<footer>`, headings in order. No `<font>`,
   no layout `<div>` soup, no `<center>`. Every page needs exactly one `<main>` and one `<h1>`
   (`check-sites.mjs` fails otherwise); if the original styled its title as a paragraph or an
-  `<h2>`, make it the `<h1>` and add CSS that keeps it looking the same.
+  `<h2>`, make it the `<h1>` and add CSS that keeps it looking the same. Headings are for
+  sections, not for rows: a list of linked entries drawn as headings (WordPress does this)
+  becomes a `<ol>` or `<ul>` with the heading look on a class, and `check-sites.mjs` fails a
+  link that wraps a heading.
 - Move every inline style into `public/css/site.css` and every inline script into a `.js` file.
   This is not optional: the CSP blocks inline styles and scripts, so `check-sites.mjs` fails
   the build on them.

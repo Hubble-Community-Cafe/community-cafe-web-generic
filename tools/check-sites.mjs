@@ -14,7 +14,7 @@
  *   3. Nothing that the strict CSP would block at runtime (inline style/script/handlers).
  *   4. Every internal link and asset reference resolves to a file that exists.
  *   5. Every page has a <title>, a viewport meta, a lang, exactly one <main> and <h1>,
- *      and header cells in every table.
+ *      header cells in every table, and no headings inside links.
  *   6. Every site has a service in both compose files, serving that site on the port in
  *      its site.json.
  */
@@ -208,6 +208,13 @@ function checkDocument(site, file, html) {
   const tables = markup.match(/<table[\s>][\s\S]*?<\/table>/gi) || []
   const headless = tables.filter((table) => !/<th[\s>]/i.test(table)).length
   if (headless) fail(site, file, `${headless} <table>(s) without <th> header cells`)
+
+  // A heading inside a link is how WordPress drew list rows, and it buries the page's
+  // real headings among hundreds of fake ones. Rows belong in a list; give them the
+  // heading look with a class (.h2) instead. Links do not nest, so the lazy match is safe.
+  const links = markup.match(/<a[\s>][\s\S]*?<\/a>/gi) || []
+  const headed = links.filter((link) => /<h[1-6][\s>]/i.test(link)).length
+  if (headed) fail(site, file, `${headed} link(s) wrapping a heading; use a list and a class instead`)
 }
 
 function checkRedirects(site, dir) {

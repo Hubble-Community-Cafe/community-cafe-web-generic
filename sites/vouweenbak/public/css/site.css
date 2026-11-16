@@ -231,15 +231,18 @@ h1.page-title {
   width: 100%;
 }
 
-/* ── The leaderboards on / and /records ──────────────────────────────────────
+/* ── The leaderboards ───────────────────────────────────────────────────────
  * WordPress made every row an <article> holding two <h2>s, the name and the time: 334
- * headings on the home page and 603 on /records, which turned a screen reader's heading
- * list into the leaderboard. The rows are <li> now, in two <ol>s either side of the
- * "Onderdanen" heading (the one real <h2> left), and the name and time are
- * <span class="h2">. Foundation's .h2 class carries the heading font and size; these
- * put back what style.css gave the <h2> tag itself. The rows share the <article> rules
- * in style.css. The "- 10", "- 20" markers every ten rows stay <h3>s for their looks,
- * inside an aria-hidden .rank-marker item: a screen reader already says "11 of 301".
+ * headings on the home page, 603 on /records, 66 on /stats and 6 on /eendjes, which
+ * turned a screen reader's heading list into the leaderboard. The rows are <li> now, in
+ * an <ol> per ranking (on the home page and /records, two either side of the
+ * "Onderdanen" heading; on /stats, one under each of its three <h3>s), and the name
+ * and time are <span class="h2">, as are the "Naam / 0.25L" label rows (<span
+ * class="h4"> on /stats). Foundation's .h2 and .h4 classes carry the heading font and
+ * size; these put back what style.css gave the tags themselves. The rows share the
+ * <article> rules in style.css. The "- 10", "- 20" markers every ten rows stay <h3>s for
+ * their looks, inside an aria-hidden .rank-marker item: a screen reader already says
+ * "11 of 301".
  *
  * ol.leaderboard, not .leaderboard: it has to outrank style.css's .wp-block-cover ol.
  */
@@ -258,7 +261,8 @@ ol.leaderboard {
   display: block;
 }
 
-.tijdtabel .h2 {
+.tijdtabel .h2,
+.tijdtabel .h4 {
   display: block;
   unicode-bidi: isolate;
   max-width: 48rem;
