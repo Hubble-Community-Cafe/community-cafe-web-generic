@@ -25,7 +25,7 @@ const SITES_DIR = join(ROOT, 'sites')
 
 const PORT_MIN = 9820
 const PORT_MAX = 9899
-const REQUIRED_FILES = ['site.json', 'Dockerfile', 'nginx.conf', 'public/index.html']
+const REQUIRED_FILES = ['site.json', 'nginx.conf', 'public/index.html']
 const NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const SEMVER_RE = /^\d+\.\d+\.\d+$/
 const STATUSES = new Set(['live', 'archive'])

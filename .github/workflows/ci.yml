@@ -75,7 +75,7 @@ jobs:
         with:
           node-version: "26"   # smoke.sh reads the port out of site.json with node
       - name: Build image
-        run: docker build -f sites/${{ matrix.site }}/Dockerfile -t ${{ matrix.site }}:ci .
+        run: docker build --build-arg SITE=${{ matrix.site }} -t ${{ matrix.site }}:ci .
       - name: Start container
         run: |
           port=$(node -p "require('./sites/${{ matrix.site }}/site.json').port")
@@ -157,14 +157,16 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ./sites/${{ matrix.site }}/Dockerfile
+          build-args: SITE=${{ matrix.site }}
           push: true
           tags: |
             ${{ steps.meta.outputs.image }}:latest
             ${{ steps.meta.outputs.image }}:v${{ steps.meta.outputs.version }}
             ${{ steps.meta.outputs.image }}:main-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # One cache scope per site: the matrix jobs build the same Dockerfile in
+          # parallel, and with a shared scope each would overwrite the others' cache.
+          cache-from: type=gha,scope=${{ matrix.site }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.site }}
       # Image scanning is best-effort: it must not block a deploy whose image has
       # already been pushed.
       #

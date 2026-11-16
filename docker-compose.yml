@@ -3,7 +3,7 @@
 #   docker compose up --build -d              all sites
 #   docker compose up --build -d bunkerbar    one site
 #
-# Every image builds from the repo ROOT as context, so it can COPY shared/nginx/.
+# Every service builds the one root Dockerfile, naming its site with the SITE build arg.
 # The published port must match that site's `port` in site.json: tools/smoke.sh derives
 # its URL from site.json, so a mismatch here surfaces as a failed smoke test.
 #
@@ -17,7 +17,8 @@ services:
   bunkerbar:
     build:
       context: .
-      dockerfile: sites/bunkerbar/Dockerfile
+      args:
+        SITE: bunkerbar
     ports:
       - "9820:80"
     restart: unless-stopped
@@ -29,7 +30,8 @@ services:
   dispuutdons:
     build:
       context: .
-      dockerfile: sites/dispuutdons/Dockerfile
+      args:
+        SITE: dispuutdons
     ports:
       - "9821:80"
     restart: unless-stopped
@@ -41,7 +43,8 @@ services:
   heeftdaanzijnbacheloralgehaald:
     build:
       context: .
-      dockerfile: sites/heeftdaanzijnbacheloralgehaald/Dockerfile
+      args:
+        SITE: heeftdaanzijnbacheloralgehaald
     ports:
       - "9822:80"
     restart: unless-stopped
@@ -53,7 +56,8 @@ services:
   vouweenbakfiets:
     build:
       context: .
-      dockerfile: sites/vouweenbakfiets/Dockerfile
+      args:
+        SITE: vouweenbakfiets
     ports:
       - "9823:80"
     restart: unless-stopped
@@ -65,7 +69,8 @@ services:
   vouweenbak:
     build:
       context: .
-      dockerfile: sites/vouweenbak/Dockerfile
+      args:
+        SITE: vouweenbak
     ports:
       - "9824:80"
     restart: unless-stopped

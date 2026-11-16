@@ -41,14 +41,6 @@ if [ "$PORT" -gt 9899 ]; then
   exit 1
 fi
 
-# Reuse the base image an existing site is pinned to, so a new site starts on the same
-# nginx version and digest instead of a copy in this script that would go stale.
-BASE_IMAGE="$(sed -n 's/^FROM //p' "$(find "$ROOT/sites" -mindepth 2 -maxdepth 2 -name Dockerfile | sort | head -1)" 2>/dev/null | head -1)"
-if [ -z "$BASE_IMAGE" ]; then
-  echo "No existing site Dockerfile to take the pinned nginx base image from" >&2
-  exit 1
-fi
-
 mkdir -p "$DIR/public/css" "$DIR/public/images"
 
 cat > "$DIR/site.json" <<JSON
@@ -61,34 +53,6 @@ cat > "$DIR/site.json" <<JSON
   "status": "live"
 }
 JSON
-
-cat > "$DIR/Dockerfile" <<DOCKER
-# Build context is the repo ROOT (so shared/nginx/ is reachable), not this folder:
-#   docker build -f sites/$NAME/Dockerfile -t $NAME .
-
-# Pinned by digest so a rebuild is reproducible; Dependabot bumps the tag and digest.
-FROM $BASE_IMAGE
-
-# Security patches
-RUN apk upgrade --no-cache
-
-COPY shared/nginx/ /etc/nginx/snippets/
-COPY sites/$NAME/nginx.conf /etc/nginx/conf.d/default.conf
-COPY sites/$NAME/public/ /usr/share/nginx/html/
-
-# The nginx user may write only its cache and pid file. The content and the config stay
-# root-owned (and world-readable), so a compromised worker cannot rewrite the site.
-RUN chown -R nginx:nginx /var/cache/nginx && \\
-    touch /var/run/nginx.pid && \\
-    chown nginx:nginx /var/run/nginx.pid
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
-    CMD wget -q -O /dev/null http://127.0.0.1/health || exit 1
-
-EXPOSE 80
-USER nginx
-CMD ["nginx", "-g", "daemon off;"]
-DOCKER
 
 cat > "$DIR/nginx.conf" <<'NGINX'
 server {
@@ -177,8 +141,8 @@ chmod -R u+rw "$DIR"
 echo "Created sites/$NAME on port $PORT."
 echo
 echo "Still to do by hand:"
-echo "  1. docker-compose.yml: add the $NAME service on port $PORT"
+echo "  1. docker-compose.yml: add the $NAME service on port $PORT (build arg SITE: $NAME)"
 echo "  2. docker-compose.portainer.template.yml: add the $NAME service"
-echo "  3. .github/dependabot.yml: nothing, /sites/* is matched by a wildcard"
+echo "  3. Dockerfile and .github/dependabot.yml: nothing, every site builds the root Dockerfile"
 echo "  4. README.md: add $NAME to the site table"
 echo "  5. Drop the snapshot into sites/$NAME/public/ and commit it unmodified first"

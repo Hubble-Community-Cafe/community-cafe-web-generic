@@ -1,14 +1,13 @@
 version: 2
 updates:
   # ── Site base images (nginx, pinned by digest) ──────────────────────────────
-  # A glob, so a new site under sites/ is picked up without editing this file.
+  # Every site builds from the one root Dockerfile, so a new site needs nothing here.
   # There is no npm or Maven entry anywhere: the sites have no dependencies, and the
   # tooling is dependency-free Node and shell on purpose.
   - package-ecosystem: "docker"
-    directories:
-      - "/sites/*"
-    # Monthly, on the first of the month. These sites have exactly one dependency each
-    # (the nginx base image), so a weekly cadence would be noise.
+    directory: "/"
+    # Monthly, on the first of the month. The sites have exactly one dependency between
+    # them (the nginx base image), so a weekly cadence would be noise.
     schedule:
       interval: "monthly"
       time: "09:00"

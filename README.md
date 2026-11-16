@@ -26,12 +26,14 @@ browser receives. A site that needs a bundler does not belong in this repo.
 ```
 sites/<name>/
 ├── site.json        name, version, domains, port, status
-├── Dockerfile       single-stage nginx:alpine, runs as the nginx user
 ├── nginx.conf       only what differs per site: legacy URL redirects
 ├── redirects.txt    old URL -> expected target, asserted by the smoke test
 ├── README.md        where the content came from, and any quirks
 └── public/          exactly what gets served
 ```
+
+Every site builds from the one root [`Dockerfile`](Dockerfile), a single-stage nginx:alpine image
+that runs as the nginx user, named by a build arg: `docker build --build-arg SITE=<name> .`
 
 Everything shared lives in [`shared/nginx/`](shared/nginx/README.md): the security headers, the
 Content-Security-Policy, clean URLs, caching, gzip and the `/health` endpoint. A site's own

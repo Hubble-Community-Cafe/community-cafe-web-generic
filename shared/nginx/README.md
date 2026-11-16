@@ -1,7 +1,7 @@
 # Shared nginx configuration
 
-Both files are copied into `/etc/nginx/snippets/` by every site's Dockerfile and included from
-that site's `nginx.conf`. Changing anything here rebuilds **all** sites (see `tools/changed-sites.mjs`).
+Both files are copied into `/etc/nginx/snippets/` by the root `Dockerfile` and included from
+each site's `nginx.conf`. Changing anything here rebuilds **all** sites (see `tools/changed-sites.mjs`).
 
 | File | Included where | What it holds |
 |------|----------------|---------------|

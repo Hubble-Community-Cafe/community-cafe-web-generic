@@ -7,8 +7,8 @@
  * Deliberately not dorny/paths-filter: that needs a filter entry per site, so adding a
  * site would mean editing the workflow. This needs no configuration at all.
  *
- * Anything shared (shared/, tools/, .github/, the compose files) rebuilds every site,
- * because it changes every image. An unusable or missing base ref also rebuilds
+ * Anything shared (the Dockerfile, shared/, tools/, .github/, the compose files)
+ * rebuilds every site, because it changes every image. An unusable or missing base ref also rebuilds
  * everything, which is the safe direction to fail in.
  *
  * Writes `sites=<json array>` and `any=true|false` to $GITHUB_OUTPUT when running in
@@ -24,7 +24,14 @@ const ROOT = resolve(fileURLToPath(import.meta.url), '../..')
 const SITES_DIR = join(ROOT, 'sites')
 
 // A change to any of these affects every image, so every site is rebuilt.
-const GLOBAL_PATHS = [/^shared\//, /^tools\//, /^\.github\//, /^docker-compose[^/]*\.yml$/, /^\.dockerignore$/]
+const GLOBAL_PATHS = [
+  /^Dockerfile$/,
+  /^shared\//,
+  /^tools\//,
+  /^\.github\//,
+  /^docker-compose[^/]*\.yml$/,
+  /^\.dockerignore$/,
+]
 
 const allSites = existsSync(SITES_DIR)
   ? readdirSync(SITES_DIR, { withFileTypes: true })
