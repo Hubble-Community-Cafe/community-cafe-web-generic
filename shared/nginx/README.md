@@ -5,20 +5,27 @@ that site's `nginx.conf`. Changing anything here rebuilds **all** sites (see `to
 
 | File | Included where | What it holds |
 |------|----------------|---------------|
-| `headers.conf` | inside every `location` block | security headers and the CSP |
-| `static-site.conf` | once, inside the `server` block | clean URLs, caching, gzip, `/health`, 404 |
+| `headers.conf` | at `server` level, and inside every `location` with its own `add_header` | security headers and the CSP |
+| `static-site.conf` | once, inside the `server` block | clean URLs, caching, gzip, `/health`, 404, `server_tokens off` |
 
-## Why the headers are repeated in every location
+## Why the headers are included more than once
 
 nginx's `add_header` does not merge across levels. If a `location` block declares **any**
 `add_header` of its own, it inherits **none** of the ones declared at `server` or `http` level.
 So a single server-level block of security headers silently vanishes from every location that
-sets its own `Cache-Control`, which is all of them.
+sets its own `Cache-Control`.
 
 There is no way to opt back into inheritance, so the headers are declared once in `headers.conf`
-and `include`d in each location. Any new `location` block in a site's `nginx.conf` must include
-it too. `tools/smoke.sh` asserts the headers are actually present on a real response, which is
-what catches a forgotten include.
+and `include`d twice over:
+
+- at `server` level, by `static-site.conf`. That covers every response from a location that
+  adds no header of its own: the legacy 301s, `/health` and the 403 on a dotfile.
+- inside each location that sets its own `Cache-Control` (`/`, static assets, the 404 page).
+
+A redirect-only `location` in a site's `nginx.conf` needs nothing extra. A new location that
+adds **any** header must include `headers.conf` too. `tools/smoke.sh` asserts the headers on a
+page, an asset, a legacy redirect, `/health` and a dotfile, which is what catches a forgotten
+include.
 
 ## What a site's nginx.conf is responsible for
 

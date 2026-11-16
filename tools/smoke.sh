@@ -95,6 +95,31 @@ else
   echo "  note  no static assets found, skipping asset header check"
 fi
 
+# And on the responses no page location serves: a trailing-slash 301 (every site has the
+# normaliser), /health, and the 403 on a dotfile. These get their headers from the
+# server-level include in static-site.conf, so this catches that include going missing.
+for probe in '301:/smoke-probe/' '200:/health' '403:/.env'; do
+  want="${probe%%:*}"
+  path="${probe#*:}"
+  probe_headers="$(curl -sS -D - -o /dev/null --max-time 10 "$BASE$path" || true)"
+  if ! printf '%s' "$probe_headers" | grep -qiE "^HTTP/[0-9.]+ $want"; then
+    fail "GET $path did not return $want, cannot check its headers"
+  elif printf '%s' "$probe_headers" | grep -qi '^content-security-policy:' \
+    && printf '%s' "$probe_headers" | grep -qi '^x-frame-options:'; then
+    pass "headers present on the $want from $path"
+  else
+    fail "the $want from $path is missing the security headers (server-level include gone?)"
+  fi
+done
+
+# server_tokens off: the Server header must not name the nginx version.
+server="$(printf '%s' "$headers" | grep -i '^server:' | tr -d '\r' || true)"
+if printf '%s' "$server" | grep -qE '/[0-9]'; then
+  fail "\"$server\" reveals the nginx version (server_tokens off missing?)"
+else
+  pass "Server header has no version (${server:-absent})"
+fi
+
 # ── Legacy redirects ──────────────────────────────────────────────────────────
 REDIRECTS="$SITE_DIR/redirects.txt"
 if [ -f "$REDIRECTS" ]; then

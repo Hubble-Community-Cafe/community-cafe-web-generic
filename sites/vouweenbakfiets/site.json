@@ -1,6 +1,6 @@
 {
   "name": "vouweenbakfiets",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "title": "Vouweenbakfiets",
   "domains": ["vouweenbakfiets.nl", "www.vouweenbakfiets.nl"],
   "port": 9823,
