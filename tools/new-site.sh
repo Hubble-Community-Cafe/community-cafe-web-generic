@@ -140,7 +140,7 @@ chmod -R u+rw "$DIR"
 
 echo "Created sites/$NAME on port $PORT."
 echo
-echo "Still to do by hand:"
+echo "Still to do by hand (check-sites fails until 1 and 2 are done):"
 echo "  1. docker-compose.yml: add the $NAME service on port $PORT (build arg SITE: $NAME)"
 echo "  2. docker-compose.portainer.template.yml: add the $NAME service"
 echo "  3. Dockerfile and .github/dependabot.yml: nothing, every site builds the root Dockerfile"

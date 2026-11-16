@@ -14,11 +14,11 @@
 # paths, its cache and its pid file, and gets them as tmpfs mounts.
 # uid 101 is the nginx user in nginx:alpine; the tmpfs mounts must belong to it.
 #
-# Reverse-proxy each published port to its hostname in Nginx Proxy Manager:
-#   9820 -> bunkerbar.nl,    www.bunkerbar.nl
-#   9821 -> dispuutdons.nl,  www.dispuutdons.nl
+# Reverse-proxy each published port to that site's `domains` (site.json) in Nginx Proxy
+# Manager. The README's site table lists them all side by side.
 #
-# Ports must match each site's `port` in site.json. Add an Uptime Kuma monitor per
+# Ports must match each site's `port` in site.json; tools/check-sites.mjs fails the build
+# when a service here is missing or publishes a different one. Add an Uptime Kuma monitor per
 # domain after deploying; that is the only monitoring these sites get, deliberately
 # (no Sentry, no analytics, no client-side script of any kind).
 

@@ -17,8 +17,10 @@ tools/new-site.sh <name> "<Title>" <primary-domain>
 This creates `sites/<name>/` with the contract filled in and the next free port assigned
 (the 9820 to 9899 range belongs to this repo; `community-cafe-web` already owns 9810 to 9813).
 
-Then add the service to `docker-compose.yml` and `docker-compose.portainer.template.yml`, and
-add a row to the site table in the root `README.md`. The scaffold script prints this list.
+Then add the service to `docker-compose.yml` (with `SITE: <name>` as its build arg) and
+`docker-compose.portainer.template.yml`, both publishing the port from `site.json`, and add a
+row to the site table in the root `README.md`. The scaffold script prints this list, and
+`tools/check-sites.mjs` fails until both compose files have the service on the right port.
 
 ## 2. Snapshot the old site, and commit it unmodified
 

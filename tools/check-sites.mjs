@@ -14,6 +14,8 @@
  *   3. Nothing that the strict CSP would block at runtime (inline style/script/handlers).
  *   4. Every internal link and asset reference resolves to a file that exists.
  *   5. Every page has a <title> and a viewport meta.
+ *   6. Every site has a service in both compose files, serving that site on the port in
+ *      its site.json.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
@@ -262,7 +264,7 @@ function checkSite(name, seenPorts) {
   const dir = join(SITES_DIR, name)
   const publicDir = join(dir, 'public')
 
-  loadSite(name, seenPorts)
+  const manifest = loadSite(name, seenPorts)
   checkRedirects(name, dir)
 
   for (const file of walk(publicDir, (f) => /\.html?$/i.test(f))) {
@@ -276,6 +278,88 @@ function checkSite(name, seenPorts) {
   for (const file of walk(publicDir, (f) => /\.css$/i.test(f))) {
     const refs = collectCssRefs(readFileSync(file, 'utf8'))
     checkReferences(name, file, publicDir, refs, [])
+  }
+
+  return manifest
+}
+
+/**
+ * The services in a compose file, read line by line. Dependency-free, so this is not a
+ * YAML parser: it understands the shape the two compose files in this repo use (service
+ * keys indented two spaces under a top-level `services:`) and nothing more.
+ */
+function composeServices(file) {
+  const services = new Map()
+  let inServices = false
+  let current = null
+  for (const line of readFileSync(file, 'utf8').split('\n')) {
+    if (/^\s*(#|$)/.test(line)) continue
+    if (/^\S/.test(line)) {
+      inServices = /^services:\s*$/.test(line)
+      current = null
+      continue
+    }
+    if (!inServices) continue
+
+    const service = line.match(/^ {2}([A-Za-z0-9_.-]+):\s*$/)
+    if (service) {
+      current = { ports: [], site: null, image: null }
+      services.set(service[1], current)
+      continue
+    }
+    if (!current) continue
+
+    const port = line.match(/^\s+-\s+["']?(\d+:\d+)["']?\s*$/)
+    if (port) current.ports.push(port[1])
+    const site = line.match(/^\s+SITE:\s*["']?([^"'\s]+)/)
+    if (site) current.site = site[1]
+    const image = line.match(/^\s+image:\s*(\S+)/)
+    if (image) current.image = image[1]
+  }
+  return services
+}
+
+// The port of every site is written down three times: site.json, and once in each of
+// these. Each entry says how a service names the site it serves.
+const COMPOSE_FILES = [
+  { file: 'docker-compose.yml', serves: (s) => s.site, how: 'build arg SITE' },
+  {
+    file: 'docker-compose.portainer.template.yml',
+    serves: (s) => s.image?.match(/\/community-cafe-web-generic-([a-z0-9-]+):[^:/]+$/)?.[1] ?? null,
+    how: 'image',
+  },
+]
+
+/** Every site has a service in both compose files, serving it, on its site.json port. */
+function checkCompose(manifests, checkExtras) {
+  for (const { file, serves, how } of COMPOSE_FILES) {
+    const path = join(ROOT, file)
+    if (!existsSync(path)) {
+      fail('compose', path, 'file is missing')
+      continue
+    }
+    const services = composeServices(path)
+
+    for (const [name, manifest] of manifests) {
+      const service = services.get(name)
+      if (!service) {
+        fail(name, path, `no "${name}" service`)
+        continue
+      }
+      const served = serves(service)
+      if (served !== name) fail(name, path, `service "${name}" serves "${served}" (by its ${how}), not "${name}"`)
+      if (Number.isInteger(manifest.port)) {
+        const want = `${manifest.port}:80`
+        if (service.ports.length !== 1 || service.ports[0] !== want) {
+          fail(name, path, `service "${name}" publishes ${service.ports.join(', ') || 'no port'}, site.json says ${want}`)
+        }
+      }
+    }
+
+    if (!checkExtras) continue
+    for (const name of services.keys()) {
+      if (!manifests.has(name)) fail(name, path, `service "${name}" has no sites/${name}/ to serve`)
+    }
   }
 }
 
@@ -301,10 +385,18 @@ function main() {
   // Ports must be unique across ALL sites, so always load every manifest even when
   // only one site was requested.
   const seenPorts = new Map()
+  const checked = new Map()
   for (const name of all) {
-    if (requested.length && !requested.includes(name)) loadSite(name, seenPorts)
-    else checkSite(name, seenPorts)
+    if (requested.length && !requested.includes(name)) {
+      loadSite(name, seenPorts)
+    } else {
+      const manifest = checkSite(name, seenPorts)
+      if (manifest) checked.set(name, manifest)
+    }
   }
+
+  // A service for a site that does not exist only shows up when looking at all of them.
+  checkCompose(checked, requested.length === 0)
 
   if (all.length === 0) {
     console.log('No sites yet, nothing to check.')
