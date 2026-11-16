@@ -15,7 +15,8 @@
  *   4. Every internal link and asset reference resolves to a file that exists.
  *   5. Every page has a <title>, a viewport meta, a lang, exactly one <main> and <h1>,
  *      header cells in every table, and no headings inside links.
- *   6. Every site has a service in both compose files, serving that site on the port in
+ *   6. Every :hover rule in a site's own site.css also covers :focus-visible.
+ *   7. Every site has a service in both compose files, serving that site on the port in
  *      its site.json.
  */
 
@@ -217,6 +218,22 @@ function checkDocument(site, file, html) {
   if (headed) fail(site, file, `${headed} link(s) wrapping a heading; use a list and a class instead`)
 }
 
+// A hover-only cue is invisible to keyboard users. Every :hover selector in a site's own
+// site.css must come with its :focus-visible twin, so tabbing to it looks like pointing
+// at it. Only site.css: the vendored WordPress and Foundation files are left as shipped.
+function checkFocusStyles(site, file, css) {
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+(?=\{)/g) || []
+  for (const rule of rules) {
+    for (const selector of rule.split(',').map((s) => s.trim())) {
+      if (!selector.includes(':hover')) continue
+      const twin = selector.replaceAll(':hover', ':focus-visible')
+      if (!rule.split(',').some((s) => s.trim() === twin)) {
+        fail(site, file, `"${selector}" has no "${twin}" alongside it, so keyboard users miss that cue`)
+      }
+    }
+  }
+}
+
 function checkRedirects(site, dir) {
   const file = join(dir, 'redirects.txt')
   if (!existsSync(file)) return
@@ -301,6 +318,9 @@ function checkSite(name, seenPorts) {
     const refs = collectCssRefs(readFileSync(file, 'utf8'))
     checkReferences(name, file, publicDir, refs, [])
   }
+
+  const siteCss = join(publicDir, 'css', 'site.css')
+  if (existsSync(siteCss)) checkFocusStyles(name, siteCss, readFileSync(siteCss, 'utf8'))
 
   return manifest
 }

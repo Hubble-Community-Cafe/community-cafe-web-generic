@@ -83,7 +83,9 @@ a {
   text-decoration: none;
 }
 
-.top-bar a:hover {
+/* Keyboard focus gets the hover underline too, next to the browser's own focus ring. */
+.top-bar a:hover,
+.top-bar a:focus-visible {
   text-decoration: underline;
 }
 

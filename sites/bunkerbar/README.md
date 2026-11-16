@@ -66,6 +66,11 @@ positions. What changed is how the page is built.
 - **Made responsive.** The original was a fixed 1000px with no viewport meta, so a phone showed it
   zoomed out to illegibility. The desktop layout is untouched; below 720px the nav becomes
   full-width tabs and the logo grid drops to two columns, then one.
+- **Keyboard focus looks like hover.** Tabbing to the title, a tab or a footer link turns it
+  orange, as pointing at it does, on top of the browser's own focus ring.
+- **The footer links are underlined**, the one visible change to the design. They are the
+  same white bold as the " | " between them, so before this only hovering showed they were
+  links.
 
 ## Quirks
 

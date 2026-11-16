@@ -56,6 +56,9 @@ the copy, colours, imagery and character exactly as they are.
   the build on them.
 - Replace `onclick="location.href=..."` navigation with real `<a href>`. It is what a link is
   for, it works with the keyboard and middle-click, and the CSP blocks the handler anyway.
+- Never remove the browser's focus ring, and give every `:hover` rule in `site.css` a
+  `:focus-visible` twin (`a:hover, a:focus-visible { ... }`) so keyboard users get the same
+  cue. `check-sites.mjs` fails a `:hover` without one.
 - Add `<meta name="viewport" content="width=device-width, initial-scale=1">` and a `lang`
   attribute on `<html>`.
 - Replace fixed pixel widths with a fluid `max-width` so the layout survives a 375px screen.

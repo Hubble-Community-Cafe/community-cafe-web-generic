@@ -276,6 +276,15 @@ ol.leaderboard {
   font-family: 'Sriracha', sans-serif;
 }
 
+/* A row grows and catches the light on hover (style.css); tabbing to its link does the
+   same. A rule of its own, because a browser without :has() drops the whole selector
+   list it appears in, and that would take the hover effect with it. */
+.leaderboard > li:has(a:focus-visible) {
+  transform: scale(1.05);
+  background-position: 0 0, 0 0;
+  transition-duration: 1s;
+}
+
 /* ── /stats ──────────────────────────────────────────────────────────────────
  * The stats page carried this in a <style> block of its own, halfway down the
  * content. Both ids exist only on that page.

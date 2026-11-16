@@ -53,7 +53,7 @@ Content-Security-Policy, clean URLs, caching, gzip and the `/health` endpoint. A
 ## Working on a site
 
 ```bash
-node tools/check-sites.mjs          # contract, third-party refs, broken links, CSP, main/h1
+node tools/check-sites.mjs          # contract, third-party refs, broken links, CSP, main/h1, focus
 docker compose up --build -d        # every site, one port each
 tools/smoke.sh <site>               # headers, CSP, /health, every legacy redirect
 ```

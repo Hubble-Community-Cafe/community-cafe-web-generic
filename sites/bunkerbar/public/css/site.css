@@ -75,7 +75,10 @@ body {
   white-space: nowrap;
 }
 
-.site-title:hover {
+/* Keyboard focus gets the hover colour too, here and on the tabs and footer links below.
+   The browser keeps drawing its own focus ring on top. */
+.site-title:hover,
+.site-title:focus-visible {
   color: var(--orange);
 }
 
@@ -97,7 +100,8 @@ body {
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
-.site-nav a:hover {
+.site-nav a:hover,
+.site-nav a:focus-visible {
   color: var(--orange);
 }
 
@@ -253,12 +257,15 @@ body {
   border-radius: 0 0 var(--radius) var(--radius);
 }
 
+/* Underlined, unlike the original: the links are the same white bold as the " | " between
+   them, so without it only hovering showed they were links. */
 .site-footer a {
   color: #fff;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
-.site-footer a:hover {
+.site-footer a:hover,
+.site-footer a:focus-visible {
   color: var(--orange);
 }
 
