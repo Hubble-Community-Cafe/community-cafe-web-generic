@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, develop]   # develop: Dependabot PRs target this branch (dependabot.yml)
+    branches: [main]
 
 # Cancel superseded runs for the same ref.
 concurrency:

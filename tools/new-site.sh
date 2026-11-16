@@ -41,6 +41,14 @@ if [ "$PORT" -gt 9899 ]; then
   exit 1
 fi
 
+# Reuse the base image an existing site is pinned to, so a new site starts on the same
+# nginx version and digest instead of a copy in this script that would go stale.
+BASE_IMAGE="$(sed -n 's/^FROM //p' "$(find "$ROOT/sites" -mindepth 2 -maxdepth 2 -name Dockerfile | sort | head -1)" 2>/dev/null | head -1)"
+if [ -z "$BASE_IMAGE" ]; then
+  echo "No existing site Dockerfile to take the pinned nginx base image from" >&2
+  exit 1
+fi
+
 mkdir -p "$DIR/public/css" "$DIR/public/images"
 
 cat > "$DIR/site.json" <<JSON
@@ -58,7 +66,8 @@ cat > "$DIR/Dockerfile" <<DOCKER
 # Build context is the repo ROOT (so shared/nginx/ is reachable), not this folder:
 #   docker build -f sites/$NAME/Dockerfile -t $NAME .
 
-FROM nginx:alpine
+# Pinned by digest so a rebuild is reproducible; Dependabot bumps the tag and digest.
+FROM $BASE_IMAGE
 
 # Security patches
 RUN apk upgrade --no-cache

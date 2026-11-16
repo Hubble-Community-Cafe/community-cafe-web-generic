@@ -1,7 +1,8 @@
 # Build context is the repo ROOT (so shared/nginx/ is reachable), not this folder:
 #   docker build -f sites/heeftdaanzijnbacheloralgehaald/Dockerfile -t heeftdaanzijnbacheloralgehaald .
 
-FROM nginx:alpine
+# Pinned by digest so a rebuild is reproducible; Dependabot bumps the tag and digest.
+FROM nginx:1.31.8-alpine@sha256:fed7e14be83cbd2661a75cdc5b872d936cf155d46c327084d30b8df19ae88d72
 
 # Security patches
 RUN apk upgrade --no-cache
