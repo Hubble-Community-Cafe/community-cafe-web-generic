@@ -231,6 +231,47 @@ h1.page-title {
   width: 100%;
 }
 
+/* ── The leaderboards on / and /records ──────────────────────────────────────
+ * WordPress made every row an <article> holding two <h2>s, the name and the time: 334
+ * headings on the home page and 603 on /records, which turned a screen reader's heading
+ * list into the leaderboard. The rows are <li> now, in two <ol>s either side of the
+ * "Onderdanen" heading (the one real <h2> left), and the name and time are
+ * <span class="h2">. Foundation's .h2 class carries the heading font and size; these
+ * put back what style.css gave the <h2> tag itself. The rows share the <article> rules
+ * in style.css. The "- 10", "- 20" markers every ten rows stay <h3>s for their looks,
+ * inside an aria-hidden .rank-marker item: a screen reader already says "11 of 301".
+ *
+ * ol.leaderboard, not .leaderboard: it has to outrank style.css's .wp-block-cover ol.
+ */
+ol.leaderboard {
+  margin: 0;
+  max-width: none;
+  padding-top: 0;
+  color: inherit;
+  line-height: inherit;
+  list-style-type: inherit;
+}
+
+/* Block rather than list-item, so no numbers show, as before. Not list-style: none,
+   which makes Safari stop announcing the list as a list. */
+.leaderboard > li {
+  display: block;
+}
+
+.tijdtabel .h2 {
+  display: block;
+  unicode-bidi: isolate;
+  max-width: 48rem;
+  margin-left: 0;
+  margin-right: 0;
+  padding-top: 0.5em;
+}
+
+.tijdinzicht .h2 {
+  color: #2f3542;
+  font-family: 'Sriracha', sans-serif;
+}
+
 /* ── /stats ──────────────────────────────────────────────────────────────────
  * The stats page carried this in a <style> block of its own, halfway down the
  * content. Both ids exist only on that page.

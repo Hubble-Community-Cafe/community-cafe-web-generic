@@ -119,6 +119,12 @@ site has never had (Foundation accordions, YouTube and Vimeo embeds).
 
 ## Quirks
 
+- **The leaderboards were headings.** WordPress made every row an `<article>` with the name
+  and the time as two `<h2>`s, and every tenth row a `<h3>` marker, so the home page had 705
+  headings and `/records` 1,268. They are two ordered lists either side of the "Onderdanen"
+  heading now, styled to look exactly as before (`css/site.css`, "The leaderboards"). The
+  markers are hidden from screen readers, which announce each row's position anyway.
+  `/stats` and `/eendjes` still use the old pattern for their shorter lists.
 - **The times used to need JavaScript.** `style.css` hides each one until the drain animation
   finishes, so on the live site a visitor without JavaScript saw four full glasses and no times
   at all. `css/noscript.css`, loaded from a `<noscript>`, puts the times back.
