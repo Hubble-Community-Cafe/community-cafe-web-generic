@@ -140,7 +140,7 @@ main {
 
 .card-title {
   display: block;
-  margin-bottom: 0.5em;
+  margin: 0 0 0.5em;
   font-size: 24px;
   font-weight: 300;
   line-height: 32px;

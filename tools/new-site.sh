@@ -122,7 +122,9 @@ cat > "$DIR/public/index.html" <<HTML
   <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
-  <h1>$TITLE</h1>
+  <main>
+    <h1>$TITLE</h1>
+  </main>
 </body>
 </html>
 HTML

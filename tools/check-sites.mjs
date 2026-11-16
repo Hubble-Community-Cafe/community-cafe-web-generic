@@ -13,7 +13,7 @@
  *   2. No third-party subresources. This is the privacy rule, checked at the source.
  *   3. Nothing that the strict CSP would block at runtime (inline style/script/handlers).
  *   4. Every internal link and asset reference resolves to a file that exists.
- *   5. Every page has a <title> and a viewport meta.
+ *   5. Every page has a <title>, a viewport meta, a lang, and exactly one <main> and <h1>.
  *   6. Every site has a service in both compose files, serving that site on the port in
  *      its site.json.
  */
@@ -193,6 +193,14 @@ function checkDocument(site, file, html) {
     fail(site, file, 'missing <meta name="viewport">, the page will not work on mobile')
   }
   if (!/<html\b[^>]*\slang\s*=/i.test(html)) fail(site, file, 'missing lang attribute on <html>')
+
+  // Screen reader users jump to the main content and to the page's title; both need to
+  // exist exactly once. Comments are stripped so a commented-out tag does not count.
+  const markup = html.replace(/<!--[\s\S]*?-->/g, '')
+  for (const tag of ['main', 'h1']) {
+    const count = (markup.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length
+    if (count !== 1) fail(site, file, `has ${count} <${tag}> elements, every page needs exactly one`)
+  }
 }
 
 function checkRedirects(site, dir) {

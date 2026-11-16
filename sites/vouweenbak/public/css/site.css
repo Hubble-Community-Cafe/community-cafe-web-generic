@@ -2,7 +2,7 @@
  * Vouw een bak: everything this static copy adds on top of the WordPress theme.
  *
  * The rest of the CSS in this folder is vendored as the live site served it
- * (wp-blocks.css, foundation.min.css, style.css). This file holds the three kinds of
+ * (wp-blocks.css, foundation.min.css, style.css). This file holds the kinds of
  * thing that could not come along unchanged:
  *
  *   1. The fonts, self-hosted instead of fetched from Google Fonts.
@@ -10,6 +10,7 @@
  *      CSP in shared/nginx/headers.conf blocks. Each one carries the exact declarations
  *      from the attribute it replaces, so nothing about the page moved a pixel.
  *   3. The notice bar, and the record history chart that took over from Google Charts.
+ *   4. The page titles that became <h1>, styled to look exactly as they did.
  */
 
 /*
@@ -117,6 +118,19 @@
 
 .top-bar.is-scrolled {
   background-color: #333;
+}
+
+/* ── Page titles ─────────────────────────────────────────────────────────────
+ * WordPress gave half the pages no <h1>: the title was a large paragraph, or the
+ * first <h2> in the cover. Those are <h1> now. One that was an <h2> carries
+ * Foundation's .h2 class, which sizes it exactly as before. One that was a paragraph
+ * carries .page-title, which puts back the three things the <h1> rules change:
+ * Foundation gives headings their own font, a 1.4 line-height and a 0.5rem margin.
+ */
+h1.page-title {
+  font-family: inherit;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 }
 
 /* ── Replacements for WordPress' inline style attributes ─────────────────────

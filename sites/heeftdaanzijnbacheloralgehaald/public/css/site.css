@@ -3,7 +3,8 @@
  *
  * Lifted verbatim from the <style> block in the original index.html. The only reason it
  * lives in a file now is the Content-Security-Policy, which has no 'unsafe-inline'.
- * Values unchanged.
+ * Values unchanged; the margin and weight on .center only undo the <h1> defaults, since
+ * the answer used to be a <div>.
  */
 
 body {
@@ -17,6 +18,8 @@ body {
 }
 
 .center {
+    margin: 0;
     font-size: 5em;
+    font-weight: normal;
     color: #333;
 }

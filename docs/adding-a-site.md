@@ -45,7 +45,9 @@ The goal is that the page looks the same to a visitor and is finally usable on a
 the copy, colours, imagery and character exactly as they are.
 
 - Semantic HTML: real `<header>`, `<nav>`, `<main>`, `<footer>`, headings in order. No `<font>`,
-  no layout `<div>` soup, no `<center>`.
+  no layout `<div>` soup, no `<center>`. Every page needs exactly one `<main>` and one `<h1>`
+  (`check-sites.mjs` fails otherwise); if the original styled its title as a paragraph or an
+  `<h2>`, make it the `<h1>` and add CSS that keeps it looking the same.
 - Move every inline style into `public/css/site.css` and every inline script into a `.js` file.
   This is not optional: the CSP blocks inline styles and scripts, so `check-sites.mjs` fails
   the build on them.
