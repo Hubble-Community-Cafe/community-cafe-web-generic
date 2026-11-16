@@ -135,6 +135,19 @@ for probe in '//evil.example/' '/%5Cevil.example/' '/%2F%2Fevil.example/' '/%09/
   fi
 done
 
+# ── Dotfiles are denied ───────────────────────────────────────────────────────
+# Asserted as a 403 from the deny rule, not just "not 200": none of these files exist, so
+# a 404 would mean some other location handled the request. The .css and .js probes are
+# the ones that matter: they prove the deny rule wins over the static asset location.
+for probe in '/.env' '/.git/config' '/.git/x.css' '/.hidden/app.js' '/img/.secret.png'; do
+  code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$BASE$probe" || echo 000)"
+  if [ "$code" = "403" ]; then
+    pass "GET $probe -> 403"
+  else
+    fail "GET $probe -> $code (expected 403, the dotfile deny rule did not apply)"
+  fi
+done
+
 # ── No redirect loop on a directory ───────────────────────────────────────────
 # A directory without an index.html must answer directly, not bounce between "/css"
 # and "/css/" until the browser gives up.
