@@ -167,8 +167,12 @@ jobs:
           cache-to: type=gha,mode=max
       # Image scanning is best-effort: it must not block a deploy whose image has
       # already been pushed.
+      #
+      # Pinned to a commit, not a tag: this job holds packages: write, and trivy-action's
+      # release tags were force-pushed to malicious commits in 2026. Dependabot updates
+      # the SHA and the version comment together.
       - name: Scan image (Trivy)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         continue-on-error: true
         with:
           image-ref: ${{ steps.meta.outputs.image }}@${{ steps.push.outputs.digest }}

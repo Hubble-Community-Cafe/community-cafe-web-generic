@@ -19,5 +19,12 @@ jobs:
           fetch-depth: 0
       # Run the gitleaks CLI via its image directly. The gitleaks-action requires a
       # paid license on organization repos; the CLI is free and needs no license.
+      #
+      # Pinned by digest: this image reads the whole git history, so a re-pushed tag must
+      # not be able to swap it. Dependabot does not see images inside `run:`, so bump the
+      # version and digest by hand (docker buildx imagetools inspect <image>:<tag>).
       - name: Run gitleaks
-        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect --source=/repo --no-banner --redact
+        run: >
+          docker run --rm -v "$PWD:/repo"
+          zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          detect --source=/repo --no-banner --redact
